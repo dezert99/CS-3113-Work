@@ -19,18 +19,22 @@
 class Entity {
     
 public:
-    Entity(float x, float y, float directionX, float directionY, float width, float height){
+    Entity(float x, float y, float directionX, float directionY, float width, float height , float r =1, float g =1, float b =1){
         this->x = x;
         this->y = y;
         this-> direction_x = directionX;
         this->direction_y = directionY;
         this->width = width;
         this->height = height;
+        this->r = r;
+        this->g = g;
+        this->b = b;
     }
     void Draw(ShaderProgram &p, float elapsed){
         this -> x += direction_x *elapsed;
         this-> y += direction_y * elapsed;
         float vertices[] = {x,y,x+width,y,x+width,y+height, x,y,x+width,y+height,x,y+height};
+        p.SetColor(r, g, b, 1);
         glUseProgram(p.programID);
         glVertexAttribPointer(p.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
         glEnableVertexAttribArray(p.positionAttribute);
@@ -48,6 +52,9 @@ public:
     float direction_x;
     float direction_y;
     int score = 0;
+    float r;
+    float g;
+    float b;
 };
 //GLobals
 glm::mat4 projectionMatrix = glm::mat4(1.0f);
@@ -59,8 +66,8 @@ float lastFrameTicks = 0.0f;
 ShaderProgram untexteredShader;
 float paddleDirctionX = 0;
     float x = 0;
-Entity player = Entity(1.67,-.3,0,0,.1,.6);
-Entity AI = Entity(-1.77,-.3,0,0,.1,.6);
+Entity player = Entity(1.67,-.3,0,0,.1,.6,0, 1, 0);
+Entity AI = Entity(-1.77,-.3,0,0,.1,.6, 1, 0, 0);
 Entity ball = Entity(-.025,-.025,.5,.5,.05,.05);
 float elapsed;
 int score = 0;
@@ -102,7 +109,7 @@ void Update(){
     untexteredShader.SetModelMatrix(modelMatrix);
     untexteredShader.SetViewMatrix(viewMatrix);
     untexteredShader.SetProjectionMatrix(projectionMatrix);
-   
+    glClearColor(0, 0, 0, 1);
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
     if(keys[SDL_SCANCODE_UP] && player.y+player.height <=1) {
         player.direction_y = 1;
@@ -137,12 +144,14 @@ void Update(){
         ball.x = -.025;
         ball.y = -.025;
         std::cout << "AI Scores" << std::endl;
+        glClearColor(1, 0, 0, 1);
     }
     else if(ball.x <= -1.77){
         player.score++;
         ball.x = -.025;
         ball.y = -.025;
         std::cout << "Player Scores" << std::endl;
+        glClearColor(0, 1, 0, 1);
     }
     
 

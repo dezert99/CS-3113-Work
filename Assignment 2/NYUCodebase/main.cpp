@@ -51,7 +51,7 @@ public:
     float velocity;
     float direction_x;
     float direction_y;
-    int score = 0;
+    //int score = 0;
     float r;
     float g;
     float b;
@@ -140,14 +140,14 @@ void Update(){
     }
     
     if(ball.x+ball.width >= 1.77){
-        AI.score ++;
+        //AI.score ++;
         ball.x = -.025;
         ball.y = -.025;
         std::cout << "AI Scores" << std::endl;
         glClearColor(1, 0, 0, 1);
     }
     else if(ball.x <= -1.77){
-        player.score++;
+        //player.score++;
         ball.x = -.025;
         ball.y = -.025;
         std::cout << "Player Scores" << std::endl;

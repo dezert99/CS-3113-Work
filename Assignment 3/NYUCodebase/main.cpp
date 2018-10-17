@@ -19,7 +19,7 @@
 class Entity {
     
 public:
-    Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r =1, float g =1, float b =1){
+    Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r =1, float g =1, float b =1, int textureID = NULL){
         this->x = x;
         this->y = y;
         this-> velocity_x = velocity_x;
@@ -31,15 +31,32 @@ public:
         this->b = b;
     }
     void Draw(ShaderProgram &p, float elapsed){
-        this -> x += velocity_x *elapsed;
-        this-> y += velocity_y * elapsed;
-        float vertices[] = {x,y,x+width,y,x+width,y+height, x,y,x+width,y+height,x,y+height};
-        p.SetColor(r, g, b, 1);
-        glUseProgram(p.programID);
-        glVertexAttribPointer(p.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
-        glEnableVertexAttribArray(p.positionAttribute);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDisableVertexAttribArray(p.positionAttribute);
+        if(textureID == NULL){
+            this -> x += velocity_x *elapsed;
+            this-> y += velocity_y * elapsed;
+            float vertices[] = {x,y,x+width,y,x+width,y+height, x,y,x+width,y+height,x,y+height};
+            p.SetColor(r, g, b, 1);
+            glUseProgram(p.programID);
+            glVertexAttribPointer(p.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
+            glEnableVertexAttribArray(p.positionAttribute);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDisableVertexAttribArray(p.positionAttribute);
+        }
+        else{
+            this -> x += velocity_x *elapsed;
+            this-> y += velocity_y * elapsed;
+            float vertices[] = {x,y,x+width,y,x+width,y+height, x,y,x+width,y+height,x,y+height};
+            p.SetColor(r, g, b, 1);
+            glUseProgram(p.programID);
+            glVertexAttribPointer(p.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
+            glEnableVertexAttribArray(p.positionAttribute);
+            float texCoords[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0};
+            glVertexAttribPointer(p.texCoordAttribute, 2, GL_FLOAT, false, 0, texCoords);
+            glEnableVertexAttribArray(p.texCoordAttribute);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+            glDisableVertexAttribArray(p.positionAttribute);
+            glDisableVertexAttribArray(p.texCoordAttribute);
+        }
     }
     glm::mat4 modelMatrix = glm::mat4(1.0f);
     float x;
@@ -130,8 +147,7 @@ glm::mat4 viewMatrix = glm::mat4(1.0f);
 float lastFrameTicks = 0.0f;
 ShaderProgram untexteredShader;
 float elapsed;
-GLuint spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"house.png");
-SheetSprite entities[] = {};
+GLuint spriteSheetTexture;
 //GLuint spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"house.png");
 //SheetSprite mySprite = SheetSprite(spriteSheetTexture, 425.0f/1024.0f, 468.0f/1024.0f, 93.0f/1024.0f, 84.0f/1024.0f, 0.2f);
 ShaderProgram texteredShader;
@@ -139,20 +155,21 @@ ShaderProgram texteredShader;
 SDL_Window* displayWindow;
 
 void Setup(){
-//    SDL_Init(SDL_INIT_VIDEO);
-//    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
-//    SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
-//    SDL_GL_MakeCurrent(displayWindow, context);
-//    #ifdef _WINDOWS
-//        glewInit();
-//    #endif
-//    glViewport(0, 0, 640, 360);
-//    projectionMatrix = glm::ortho(-1.77f,1.77f, -1.0f, 1.0f, -1.0f, 1.0f); //Sets up orthographic projection.Ratio of 16:9
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    texteredShader.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-//    texteredShader.SetViewMatrix(viewMatrix);
-//    texteredShader.SetProjectionMatrix(projectionMatrix);
+    SDL_Init(SDL_INIT_VIDEO);
+    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
+    SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
+    SDL_GL_MakeCurrent(displayWindow, context);
+    #ifdef _WINDOWS
+        glewInit();
+    #endif
+    glViewport(0, 0, 640, 360);
+    projectionMatrix = glm::ortho(-1.77f,1.77f, -1.0f, 1.0f, -1.0f, 1.0f); //Sets up orthographic projection.Ratio of 16:9
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    texteredShader.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+    texteredShader.SetViewMatrix(viewMatrix);
+    texteredShader.SetProjectionMatrix(projectionMatrix);
+    spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
 //
     
 }
@@ -171,10 +188,8 @@ void Update(){
     modelMatrix = glm::mat4(1.0f);
 
 }
-void Render(){
-//    GLuint spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
-//    SheetSprite mySprite = SheetSprite(spriteSheetTexture, 425.0f/1024.0f, 468.0f/1024.0f, 93.0f/1024.0f, 84.0f/1024.0f, 0.2f);
-//    mySprite.Draw(texteredShader);
+void Render(Entity mySprite){
+    mySprite.Draw(texteredShader,.1);
 }
 void Cleanup(){
     
@@ -182,29 +197,14 @@ void Cleanup(){
 //"../Assets/house.png"
 int main(int argc, char *argv[])
 {
-    SDL_Init(SDL_INIT_VIDEO);
-    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 360, SDL_WINDOW_OPENGL);
-    SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
-    SDL_GL_MakeCurrent(displayWindow, context);
-#ifdef _WINDOWS
-    glewInit();
-#endif
-    glViewport(0, 0, 640, 360);
-    projectionMatrix = glm::ortho(-1.77f,1.77f, -1.0f, 1.0f, -1.0f, 1.0f); //Sets up orthographic projection.Ratio of 16:9
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    texteredShader.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-    texteredShader.SetViewMatrix(viewMatrix);
-    texteredShader.SetProjectionMatrix(projectionMatrix);
     
     Setup();
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture, 425.0f/1024.0f, 468.0f/1024.0f, 93.0f/1024.0f, 84.0f/1024.0f, 0.2f);
+    Entity test = Entity(0, 0, 0, 0, 50, 50,1,1,1,spriteSheetTexture);
     while (!done) {
-        GLuint spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
-        SheetSprite mySprite = SheetSprite(spriteSheetTexture, 425.0f/1024.0f, 468.0f/1024.0f, 93.0f/1024.0f, 84.0f/1024.0f, 0.2f);
-        mySprite.Draw(texteredShader);
         ProcessEvents();
         Update();
-        Render();
+        Render(test);
         SDL_GL_SwapWindow(displayWindow);
     }
     Cleanup();

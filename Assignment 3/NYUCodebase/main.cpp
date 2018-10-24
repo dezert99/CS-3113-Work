@@ -39,62 +39,12 @@ int bulletIndex = 0;
 GLuint fontTexture;
 int score = 0;
 float bulletTimer = 1;
+enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
+GameMode mode = STATE_MAIN_MENU;
+
+
 
 SDL_Window* displayWindow;
-
-class MainMenu {
-    void Setup(){
-        
-    }
-    void ProcessEvents(){
-        
-    }
-    void Update(){
-        
-    }
-    void Render(){
-        
-    }
-    void CleanUp(){
-        
-    }
-};
-
-class Pause{
-    void Setup(){
-        
-    }
-    void ProcessEvents(){
-        
-    }
-    void Update(){
-        
-    }
-    void Render(){
-        
-    }
-    void CleanUp(){
-        
-    }
-};
-
-class Game{
-    void Setup(){
-        
-    }
-    void ProcessEvents(){
-        
-    }
-    void Update(){
-        
-    }
-    void Render(){
-        
-    }
-    void CleanUp(){
-        
-    }
-};
 
 GLuint LoadTexture(const char *filePath) {
     int w,h,comp;
@@ -155,119 +105,195 @@ void DrawText(ShaderProgram &program, int fontTexture, std::string text, float x
     glDisableVertexAttribArray(program.texCoordAttribute);
 }
 
-
-void Setup(){
-    SDL_Init(SDL_INIT_VIDEO);
-    displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
-    SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
-    SDL_GL_MakeCurrent(displayWindow, context);
-    #ifdef _WINDOWS
-        glewInit();
-    #endif
-    glViewport(0, 0, 1280, 720);
-    projectionMatrix = glm::ortho(-1.77f,1.77f, -1.0f, 1.0f, -1.0f, 1.0f); //Sets up orthographic projection.Ratio of 16:9
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    texteredShader.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
-    untexteredShader.Load(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragment.glsl");
-    untexteredShader.SetViewMatrix(viewMatrix);
-    untexteredShader.SetProjectionMatrix(projectionMatrix);
-    untexteredShader.SetModelMatrix(modelMatrix);
-    texteredShader.SetViewMatrix(viewMatrix);
-    texteredShader.SetProjectionMatrix(projectionMatrix);
-    texteredShader.SetModelMatrix(modelMatrix);
-    
-    spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
-    fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
-//
-    
-}
-void ProcessEvents(){
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
-            done = true;
-        }
-        else if (event.type == SDL_KEYDOWN){
-            if(event.key.keysym.scancode == SDL_SCANCODE_SPACE && bulletTimer >=1) {
-                bullets[bulletIndex].x = entities[0].x;
-                bullets[bulletIndex].y = entities[0].y;
-                bulletIndex++;
-                if(bulletIndex > 30){
-                    bulletIndex = 0;
+class MainMenu {
+public:
+    void Render() {
+        DrawText(texteredShader, fontTexture, "Space Invaders by Chris. Space to start!", -1.12,0,0.05, .01);
+    }
+    void Update() {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    void ProcessEvents(){
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+                done = true;
+            }
+            else if (event.type == SDL_KEYDOWN){
+                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                    mode = STATE_GAME_LEVEL;
+                    lastFrameTicks = (float)SDL_GetTicks()/1000.0f;
                 }
-                bulletTimer = 0;
             }
         }
+    }
+    void CleanUp(){
+        
+    }
+};
+    
+
+class Game{
+    public:
+
+    void Setup(){
+        SDL_Init(SDL_INIT_VIDEO);
+        displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
+        SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
+        SDL_GL_MakeCurrent(displayWindow, context);
+        #ifdef _WINDOWS
+                glewInit();
+        #endif
+        glViewport(0, 0, 1280, 720);
+        projectionMatrix = glm::ortho(-1.77f,1.77f, -1.0f, 1.0f, -1.0f, 1.0f); //Sets up orthographic projection.Ratio of 16:9
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        texteredShader.Load(RESOURCE_FOLDER"vertex_textured.glsl", RESOURCE_FOLDER"fragment_textured.glsl");
+        untexteredShader.Load(RESOURCE_FOLDER"vertex.glsl", RESOURCE_FOLDER"fragment.glsl");
+        untexteredShader.SetViewMatrix(viewMatrix);
+        untexteredShader.SetProjectionMatrix(projectionMatrix);
+        untexteredShader.SetModelMatrix(modelMatrix);
+        texteredShader.SetViewMatrix(viewMatrix);
+        texteredShader.SetProjectionMatrix(projectionMatrix);
+        texteredShader.SetModelMatrix(modelMatrix);
+        
+        spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
+        fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
+    }
+    void ProcessEvents(){
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+                done = true;
+            }
+            else if (event.type == SDL_KEYDOWN){
+                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE && bulletTimer >=1) {
+                    bullets[bulletIndex].x = entities[0].x;
+                    bullets[bulletIndex].y = entities[0].y;
+                    bulletIndex++;
+                    if(bulletIndex > 30){
+                        bulletIndex = 0;
+                    }
+                    bulletTimer = 0;
+                }
+            }
+        }
+    }
+    void Update(){
+        glClear(GL_COLOR_BUFFER_BIT);
+        float ticks = (float)SDL_GetTicks()/1000.0f;
+        elapsed = ticks - lastFrameTicks;
+        lastFrameTicks = ticks;
+        modelMatrix = glm::mat4(1.0f);
+        const Uint8 *keys = SDL_GetKeyboardState(NULL);
+        if(keys[SDL_SCANCODE_LEFT] && entities[0].x-entities[0].width>= -1.77) {
+            entities[0].velocity_x = -1;
+        } else if(keys[SDL_SCANCODE_RIGHT] && entities[0].x+entities[0].width <= 1.77) {
+            entities[0].velocity_x = 1;
+        }
+        else{
+            entities[0].velocity_x = 0;
+        }
+        entities[0].update(elapsed);
+        for(Entity &a: aliens){
+            if(!(a.x < -500) && a.x+a.sprite.size/2<= -1.57){
+                aliensVelocity = .3;
+                for(Entity &al: aliens){
+                    al.y -= .05;
+                    
+                }
+            }
+            else if(!(a.x < -500) && a.x+(a.sprite.size/2) >= 1.77){
+                aliensVelocity = -.3;
+                for(Entity &al: aliens){
+                    al.y -= .05;
+                }
+            }
+        }
+        for(Entity &a: aliens){
+            a.velocity_x = aliensVelocity;
+            for(Entity &b: bullets){
+                if(b.collision(a)){
+                    a.x = -1000;
+                    b.x = 200;
+                    score++;
+                }
+            }
+            if(a.collision(entities[0])){
+                done = true;
+            }
+            
+            a.update(elapsed);
+        }
+        for(Entity &b: bullets){
+            b.update(elapsed);
+        }
+        bulletTimer += elapsed;
+        if(score == 28){
+            DrawText(texteredShader, fontTexture, "Congrats! You Win", -.87, 0, .1, .01);
+        }
+        //DrawText(ShaderProgram &program, int fontTexture, std::string text, float size, float spacing)
+        
+    }
+    void Render(){
+        DrawText(texteredShader, fontTexture, "Score: "+std::to_string(score), -1.73,.95,.05, .01);
+        entities[0].Draw(texteredShader, elapsed);
+        for(Entity &a: aliens){
+            a.Draw(texteredShader, elapsed);
+        }
+        for(Entity &b: bullets){
+            b.Draw(texteredShader, elapsed);
+        }
+    }
+    void CleanUp(){
+        
+    }
+};
+
+MainMenu menu;
+Game game;
+
+
+void Setup(){
+    game.Setup();
+}
+void ProcessEvents(){
+    switch(mode){
+        case STATE_MAIN_MENU:
+            menu.ProcessEvents();
+            break;
+        case STATE_GAME_LEVEL:
+            game.ProcessEvents();
+            break;
     }
 }
 void Update(){
-    glClear(GL_COLOR_BUFFER_BIT);
-    float ticks = (float)SDL_GetTicks()/1000.0f;
-    elapsed = ticks - lastFrameTicks;
-    lastFrameTicks = ticks;
-    modelMatrix = glm::mat4(1.0f);
-    const Uint8 *keys = SDL_GetKeyboardState(NULL);
-    if(keys[SDL_SCANCODE_LEFT] && entities[0].x-entities[0].width>= -1.77) {
-        entities[0].velocity_x = -1;
-    } else if(keys[SDL_SCANCODE_RIGHT] && entities[0].x+entities[0].width <= 1.77) {
-        entities[0].velocity_x = 1;
+    switch(mode){
+        case STATE_MAIN_MENU:
+            menu.Update();
+            break;
+        case STATE_GAME_LEVEL:
+            game.Update();
+            break;
     }
-    else{
-        entities[0].velocity_x = 0;
-    }
-    entities[0].update(elapsed);
-    for(Entity &a: aliens){
-        if(!(a.x < -500) && a.x+a.sprite.size/2<= -1.57){
-            aliensVelocity = .3;
-            for(Entity &al: aliens){
-                al.y -= .05;
-                
-            }
-        }
-        else if(!(a.x < -500) && a.x+(a.sprite.size/2) >= 1.77){
-            aliensVelocity = -.3;
-            for(Entity &al: aliens){
-                al.y -= .05;
-            }
-        }
-    }
-    for(Entity &a: aliens){
-        a.velocity_x = aliensVelocity;
-        for(Entity &b: bullets){
-            if(b.collision(a)){
-                a.x = -1000;
-                b.x = 200;
-                score++;
-            }
-        }
-        if(a.collision(entities[0])){
-            done = true;
-        }
-        
-        a.update(elapsed);
-    }
-    for(Entity &b: bullets){
-        b.update(elapsed);
-    }
-    bulletTimer += elapsed;
-    //DrawText(ShaderProgram &program, int fontTexture, std::string text, float size, float spacing)
-    
-    
-
 }
 void Render(){
-    DrawText(texteredShader, fontTexture, "Score: "+std::to_string(score), -1.73,.95,.05, .01);
-    entities[0].Draw(texteredShader, elapsed);
-    for(Entity &a: aliens){
-        a.Draw(texteredShader, elapsed);
+    switch(mode){
+        case STATE_MAIN_MENU:
+            menu.Render();
+            break;
+        case STATE_GAME_LEVEL:
+            game.Render();
+            break;
     }
-    for(Entity &b: bullets){
-        b.Draw(texteredShader, elapsed);
-    }
-    
 }
 void Cleanup(){
-    
+    switch(mode){
+        case STATE_MAIN_MENU:
+            menu.CleanUp();
+            break;
+        case STATE_GAME_LEVEL:
+            game.CleanUp();
+            break;
+    }
 }
 //"../Assets/house.png"
 int main(int argc, char *argv[])
@@ -296,6 +322,7 @@ int main(int argc, char *argv[])
         bullets.push_back(Entity(-100,-100,0,4,bullet.width,bullet.height,0,0,0,bullet.u,bullet.v,bullet.textureID, bullet.size));
     }
     while (!done) {
+        
         ProcessEvents();
         Update();
         Render();

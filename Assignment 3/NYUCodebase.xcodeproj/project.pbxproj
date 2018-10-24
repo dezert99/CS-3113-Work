@@ -22,6 +22,9 @@
 		6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 6DEF23C01B96CC2600BCE792 /* vertex.glsl */; };
 		A6229B2421754FF000BF0558 /* sheet.png in Resources */ = {isa = PBXBuildFile; fileRef = A6229B2321754FF000BF0558 /* sheet.png */; };
 		A6229B262175529700BF0558 /* house.png in Resources */ = {isa = PBXBuildFile; fileRef = A6229B252175529700BF0558 /* house.png */; };
+		A69F92D82178031E007808D1 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A69F92D62178031E007808D1 /* Entity.cpp */; };
+		A69F92DB2178054C007808D1 /* SheetSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A69F92D92178054C007808D1 /* SheetSprite.cpp */; };
+		A6A9B9CF217FDE44004C860A /* pixel_font.png in Resources */ = {isa = PBXBuildFile; fileRef = A6A9B9CE217FDE44004C860A /* pixel_font.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +49,11 @@
 		6DEF23C01B96CC2600BCE792 /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		A6229B2321754FF000BF0558 /* sheet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sheet.png; sourceTree = "<group>"; };
 		A6229B252175529700BF0558 /* house.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = house.png; sourceTree = "<group>"; };
+		A69F92D62178031E007808D1 /* Entity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
+		A69F92D72178031E007808D1 /* Entity.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Entity.hpp; sourceTree = "<group>"; };
+		A69F92D92178054C007808D1 /* SheetSprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SheetSprite.cpp; sourceTree = "<group>"; };
+		A69F92DA2178054C007808D1 /* SheetSprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SheetSprite.hpp; sourceTree = "<group>"; };
+		A6A9B9CE217FDE44004C860A /* pixel_font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pixel_font.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +133,7 @@
 		6D5A86E119AE5CAA0066C1FD /* Code */ = {
 			isa = PBXGroup;
 			children = (
+				A6A9B9CE217FDE44004C860A /* pixel_font.png */,
 				A6229B252175529700BF0558 /* house.png */,
 				A6229B2321754FF000BF0558 /* sheet.png */,
 				6DEF23BB1B96CC2600BCE792 /* fragment.glsl */,
@@ -134,6 +143,10 @@
 				6DEF23BF1B96CC2600BCE792 /* ShaderProgram.h */,
 				6DEF23C01B96CC2600BCE792 /* vertex.glsl */,
 				6D5A86B919AE5C710066C1FD /* main.cpp */,
+				A69F92D62178031E007808D1 /* Entity.cpp */,
+				A69F92D72178031E007808D1 /* Entity.hpp */,
+				A69F92D92178054C007808D1 /* SheetSprite.cpp */,
+				A69F92DA2178054C007808D1 /* SheetSprite.hpp */,
 			);
 			name = Code;
 			sourceTree = "<group>";
@@ -198,6 +211,7 @@
 				6D5A86C619AE5C710066C1FD /* Images.xcassets in Resources */,
 				6D5A86BE19AE5C710066C1FD /* Credits.rtf in Resources */,
 				A6229B2421754FF000BF0558 /* sheet.png in Resources */,
+				A6A9B9CF217FDE44004C860A /* pixel_font.png in Resources */,
 				6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */,
 				6DC7076A1BA7273500225B7D /* vertex_textured.glsl in Resources */,
 			);
@@ -210,7 +224,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A69F92DB2178054C007808D1 /* SheetSprite.cpp in Sources */,
 				6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */,
+				A69F92D82178031E007808D1 /* Entity.cpp in Sources */,
 				6D5A86BA19AE5C710066C1FD /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

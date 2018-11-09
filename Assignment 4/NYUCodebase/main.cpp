@@ -154,6 +154,7 @@ class Game{
         texteredShader.SetModelMatrix(modelMatrix);
         
         spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
+        glBindTexture(GL_TEXTURE_2D, spriteSheetTexture);
         fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
         glClearColor(.364705, .737254, .823529, 1);
         FlareMap map;
@@ -168,11 +169,11 @@ class Game{
                 int index = map.mapData[y][x];
                 int sprite_count_x = 16;
                 int sprite_count_y = 8;
-                float tileSize = .2;
+                float tileSize = .1;
                 float scale = .1;
 //                float u = (float)(((int)index) % sprite_count_x) / (float) sprite_count_x;
 //                float v = (float)(((int)index) / sprite_count_x) / (float) sprite_count_y;
-                Entity tile = Entity(x*tileSize,-y*tileSize,0,0,index, sprite_count_x, sprite_count_x,0,0,0,spriteSheetTexture,scale);
+                Entity tile = Entity(x*tileSize,-y*tileSize,0,0,index, sprite_count_x, sprite_count_y,0,0,0,spriteSheetTexture,scale);
                 tiles.push_back(tile);
             }
         }

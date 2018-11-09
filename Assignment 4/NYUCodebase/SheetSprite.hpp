@@ -16,6 +16,7 @@
 class SheetSprite {
 public:
     SheetSprite(unsigned int textureID = 0, float width = -4, float height = -4, float size = -4){
+        glBindTexture(GL_TEXTURE_2D, textureID);
         this -> textureID = textureID;
         this -> width = width;
         this -> height = height;

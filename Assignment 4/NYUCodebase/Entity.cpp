@@ -12,6 +12,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 void Entity::Draw(ShaderProgram &p, float elapsed){
+    
     sprite.Draw(p, index, sCountX, sCountY, position.x, position.y);
 }
 Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, int textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){

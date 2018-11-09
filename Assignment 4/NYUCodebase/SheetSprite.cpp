@@ -29,7 +29,7 @@ void SheetSprite::Draw(ShaderProgram &program, int index, int spriteCountX,
         u, v+spriteHeight,
         u+spriteWidth, v+spriteHeight
     };
-    float vertices[] = {-0.5f*.1, -0.5f*.1, 0.5f*.1, 0.5f*.1, -0.5f*.1, 0.5f*.1, 0.5f*.1, 0.5f*.1,  -0.5f*.1,
+    float vertices[] = {-0.5f*.1, -0.5f*.2, 0.5f*.1, 0.5f*.1, -0.5f*.1, 0.5f*.1, 0.5f*.1, 0.5f*.1,  -0.5f*.1,
         -0.5f*.1, 0.5f*.1, -0.5f*.1};
     glVertexAttribPointer(program.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
     glEnableVertexAttribArray(program.positionAttribute);

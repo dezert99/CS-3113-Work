@@ -22,7 +22,7 @@ struct vec2 {
 class Entity {
     
 public:
-    Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float size);
+    Entity(float x, float y, float velocity_x, float velocity_y,int index , int sCountX, int sCountY, float r, float g, float b, int textureID, float size);
     void Draw(ShaderProgram &p, float elapsed);
     void update(float elapsed);
     bool collision(Entity &e);
@@ -32,6 +32,9 @@ public:
     SheetSprite sprite;
     float width;
     float height;
+    int index;
+    int sCountX;
+    int sCountY;
     vec2 velocity;
     float r;
     float g;

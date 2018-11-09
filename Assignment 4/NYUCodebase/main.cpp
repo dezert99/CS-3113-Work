@@ -155,22 +155,25 @@ class Game{
         
         spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
         fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
-        
+        glClearColor(.364705, .737254, .823529, 1);
         FlareMap map;
 
         map.Load(RESOURCE_FOLDER"Platformer 1.txt");
 
         
-        //Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float );
+        //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, float u = -4, float v = -4, int textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
         for(int x=0; x < map.mapWidth; x++) {
             for(int y=0; y < map.mapHeight; y++) {
                 // check map.mapData[y][x] for tile index
                 int index = map.mapData[y][x];
-                float u = (float)(((int)index) % 16) / (float) 16;
-                float v = (float)(((int)index) / 16) / (float) 8;
-                Entity tile = Entity(x*.1,-y*.1,0,0,1.0/16, 1.0/8,0,0,0,u,v,spriteSheetTexture,.2);
+                int sprite_count_x = 16;
+                int sprite_count_y = 8;
+                float tileSize = .2;
+                float scale = .1;
+//                float u = (float)(((int)index) % sprite_count_x) / (float) sprite_count_x;
+//                float v = (float)(((int)index) / sprite_count_x) / (float) sprite_count_y;
+                Entity tile = Entity(x*tileSize,-y*tileSize,0,0,index, sprite_count_x, sprite_count_x,0,0,0,spriteSheetTexture,scale);
                 tiles.push_back(tile);
-                
             }
         }
 
@@ -281,10 +284,9 @@ int main(int argc, char *argv[])
 {
     
     Setup();
-    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/16, 1.0/8, .2f);
 
-//Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float size);
-    entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));
+//Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, fint textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
+    entities.push_back(Entity(0,-.8,0,0,98,16,8,0,0,0,spriteSheetTexture, .1f));
     while (!done) {
         
         ProcessEvents();

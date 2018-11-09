@@ -12,17 +12,29 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 void Entity::Draw(ShaderProgram &p, float elapsed){
-    
-    sprite.Draw(p, index, sCountX, sCountY, position.x, position.y);
-}
-Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, int textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
-    this-> index = index;
-    this-> sCountX = sCountX;
-    this -> sCountY = sCountY;
+    if(sprite.u == -4){
+        std::cout << "Untextered";
+        float vertices[] = {position.x,position.y,position.x+width,position.y,position.x+width,position.y+height, position.x,position.y,position.x+width,position.y+height,position.x,position.y+height};
+        p.SetColor(r, g, b, 1);
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        p.SetModelMatrix(modelMatrix);
+        glUseProgram(p.programID);
+        glVertexAttribPointer(p.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
+        glEnableVertexAttribArray(p.positionAttribute);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDisableVertexAttribArray(p.positionAttribute);
+        }
+        else{
+            sprite.Draw(p, position.x, position.y);
+        }
+    }
+Entity::Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r =1, float g =1, float b =1, float u = -4, float v = -4, int textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
+    this->width = width;
+    this->height = height;
     this->r = r;
     this->g = g;
     this->b = b;
-    this -> sprite = SheetSprite(textureID,width, height, size);
+    this -> sprite = SheetSprite(textureID, u, v ,width, height, size);
 }
 void Entity::update(float elapsed){
     position.x += velocity.x *elapsed;

@@ -35,10 +35,11 @@ ShaderProgram texteredShader;
 std::vector<Entity> entities;
 GLuint fontTexture;
 int score = 0;
-float bulletTimer = 1;
 enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
 GameMode mode = STATE_MAIN_MENU;
 std::vector<Entity> tiles;
+std::vector<float> vertexData;
+std::vector<float> texCoordData;
 
 
 SDL_Window* displayWindow;
@@ -101,7 +102,23 @@ void DrawText(ShaderProgram &program, int fontTexture, std::string text, float x
     glDisableVertexAttribArray(program.positionAttribute);
     glDisableVertexAttribArray(program.texCoordAttribute);
 }
-
+void drawMap(){
+    glUseProgram(texteredShader.programID);
+    glm::mat4 mapModelMatrix = glm::mat4(1.0);
+    texteredShader.SetModelMatrix(mapModelMatrix);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glVertexAttribPointer(texteredShader.positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
+    glEnableVertexAttribArray(texteredShader.positionAttribute);
+    glVertexAttribPointer(texteredShader.texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
+    glEnableVertexAttribArray(texteredShader.texCoordAttribute);
+    glBindTexture(GL_TEXTURE_2D, fontTexture);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray(texteredShader.positionAttribute);
+    glDisableVertexAttribArray(texteredShader.texCoordAttribute);
+}
 class MainMenu {
 public:
     void Render() {
@@ -156,7 +173,7 @@ class Game{
         spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
         glBindTexture(GL_TEXTURE_2D, spriteSheetTexture);
         fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
-        glClearColor(.364705, .737254, .823529, 1);
+        //glClearColor(.364705, .737254, .823529, 1);
         FlareMap map;
 
         map.Load(RESOURCE_FOLDER"Platformer 1.txt");
@@ -167,23 +184,30 @@ class Game{
             for(int y=0; y < map.mapHeight; y++) {
                 // check map.mapData[y][x] for tile index
                 int index = map.mapData[y][x];
-<<<<<<< HEAD
                 int sprite_count_x = 16;
                 int sprite_count_y = 8;
                 float tileSize = .1;
                 float scale = .1;
-//                float u = (float)(((int)index) % sprite_count_x) / (float) sprite_count_x;
-//                float v = (float)(((int)index) / sprite_count_x) / (float) sprite_count_y;
-                Entity tile = Entity(x*tileSize,-y*tileSize,0,0,index, sprite_count_x, sprite_count_y,0,0,0,spriteSheetTexture,scale);
-=======
-                float u = (float)(((int)index) % 30) / (float) 30;
-                float v = (float)(((int)index) / 30) / (float) 16;
-                Entity tile = Entity(x/3.34,-y/3.34,0,0,1.0/30,1.0/30,0,0,0,u,v,spriteSheetTexture,.3);
->>>>>>> parent of c059fe0... Halp
-                tiles.push_back(tile);
+                float texture_x = (float)(((int)x) % sprite_count_x) / sprite_count_x;
+                float texture_y = (float)(((int)y) / sprite_count_x) / sprite_count_y;
+                    vertexData.insert(vertexData.end(), {
+                        tileSize * x, (-tileSize * y),
+                        tileSize * x, (-tileSize * y) - tileSize,
+                        tileSize * x + tileSize, (-tileSize * y),
+                        tileSize * x, (-tileSize * y) - tileSize,
+                        tileSize * x + tileSize,(-tileSize * y),
+                        tileSize * x + tileSize, (-tileSize * y) - tileSize,
+                    });
+                    texCoordData.insert(texCoordData.end(), {
+                        texture_x, texture_y,
+                        texture_x, texture_y + .03f,
+                        texture_x + .03f, texture_y,
+                        texture_x + .03f , texture_y + .03f,
+                        texture_x + .03f, texture_y,
+                        texture_x, texture_y + .03f,
+                    });
             }
         }
-
 
     }
     void ProcessEvents(){
@@ -221,18 +245,17 @@ class Game{
         else{
             entities[0].velocity.y = 0;
         }
+        
         entities[0].update(elapsed);
         viewMatrix = glm::mat4(1.0f);
         viewMatrix = glm::translate(viewMatrix, glm::vec3(-entities[0].position.x,-entities[0].position.y,0.0f));
         texteredShader.SetViewMatrix(viewMatrix);
-        for(Entity tile: tiles){
-            tile.Draw(texteredShader, elapsed);
-        }
         
     }
     void Render(){
         DrawText(texteredShader, fontTexture, "Score: "+std::to_string(score), -1.73,.95,.05, .01);
-        entities[0].Draw(texteredShader, elapsed);
+        drawMap();
+        //entities[0].Draw(texteredShader, elapsed);
     }
     void CleanUp(){
         
@@ -291,13 +314,10 @@ int main(int argc, char *argv[])
 {
     
     Setup();
-<<<<<<< HEAD
-=======
-    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/30, 1.0/16, .2f);
->>>>>>> parent of c059fe0... Halp
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/16, 1.0/8, .2f);
 
 //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, fint textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
-    entities.push_back(Entity(0,-.8,0,0,98,16,8,0,0,0,spriteSheetTexture, .1f));
+    entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));
     while (!done) {
         
         ProcessEvents();

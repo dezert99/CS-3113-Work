@@ -166,9 +166,9 @@ class Game{
             for(int y=0; y < map.mapHeight; y++) {
                 // check map.mapData[y][x] for tile index
                 int index = map.mapData[y][x];
-                float u = (float)(((int)index) % 30) / (float) 30;
-                float v = (float)(((int)index) / 30) / (float) 16;
-                Entity tile = Entity(x/3.34,-y/3.34,0,0,1.0/30,1.0/30,0,0,0,u,v,spriteSheetTexture,.3);
+                float u = (float)(((int)index) % 16) / (float) 16;
+                float v = (float)(((int)index) / 16) / (float) 8;
+                Entity tile = Entity(x*.1,-y*.1,0,0,1.0/16, 1.0/8,0,0,0,u,v,spriteSheetTexture,.2);
                 tiles.push_back(tile);
                 
             }
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 {
     
     Setup();
-    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/30, 1.0/16, .2f);
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/16, 1.0/8, .2f);
 
 //Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float size);
     entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));

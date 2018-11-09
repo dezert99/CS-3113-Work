@@ -10,6 +10,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "FlareMap.h"
 
 #ifdef _WINDOWS
 #define RESOURCE_FOLDER ""
@@ -37,7 +38,7 @@ int score = 0;
 float bulletTimer = 1;
 enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
 GameMode mode = STATE_MAIN_MENU;
-
+std::vector<Entity> tiles;
 
 
 SDL_Window* displayWindow;
@@ -154,6 +155,26 @@ class Game{
         
         spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"sheet.png");
         fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
+        
+        FlareMap map;
+
+        map.Load(RESOURCE_FOLDER"Platformer 1.txt");
+
+        
+        //Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float );
+        for(int x=0; x < map.mapWidth; x++) {
+            for(int y=0; y < map.mapHeight; y++) {
+                // check map.mapData[y][x] for tile index
+                int index = map.mapData[y][x];
+                float u = (float)(((int)index) % 30) / (float) 30;
+                float v = (float)(((int)index) / 30) / (float) 16;
+                Entity tile = Entity(x,-y,0,0,.035,.035,0,0,0,u,v,spriteSheetTexture,.3);
+                tiles.push_back(tile);
+                
+            }
+        }
+
+
     }
     void ProcessEvents(){
         while (SDL_PollEvent(&event)) {
@@ -174,16 +195,29 @@ class Game{
         lastFrameTicks = ticks;
         modelMatrix = glm::mat4(1.0f);
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        if(keys[SDL_SCANCODE_LEFT] && entities[0].position.x-entities[0].width>= -1.77) {
-            entities[0].velocity.x = -1;
-        } else if(keys[SDL_SCANCODE_RIGHT] && entities[0].position.x+entities[0].width <= 1.77) {
-            entities[0].velocity.x = 1;
+        if(keys[SDL_SCANCODE_LEFT]) {
+            entities[0].velocity.x = -2;
+        } else if(keys[SDL_SCANCODE_RIGHT]) {
+            entities[0].velocity.x = 2;
         }
         else{
             entities[0].velocity.x = 0;
         }
+        if(keys[SDL_SCANCODE_UP]) {
+            entities[0].velocity.y = 2;
+        } else if(keys[SDL_SCANCODE_DOWN]) {
+            entities[0].velocity.y = -2;
+        }
+        else{
+            entities[0].velocity.y = 0;
+        }
         entities[0].update(elapsed);
-        glm::translate(viewMatrix, glm::vec3(-1.0f,-1.0f,0.0f));
+        viewMatrix = glm::mat4(1.0f);
+        viewMatrix = glm::translate(viewMatrix, glm::vec3(-entities[0].position.x,-entities[0].position.y,0.0f));
+        texteredShader.SetViewMatrix(viewMatrix);
+        for(Entity tile: tiles){
+            tile.Draw(texteredShader, elapsed);
+        }
         
     }
     void Render(){

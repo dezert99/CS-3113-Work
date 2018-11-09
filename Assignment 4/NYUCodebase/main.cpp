@@ -167,6 +167,7 @@ class Game{
             for(int y=0; y < map.mapHeight; y++) {
                 // check map.mapData[y][x] for tile index
                 int index = map.mapData[y][x];
+<<<<<<< HEAD
                 int sprite_count_x = 16;
                 int sprite_count_y = 8;
                 float tileSize = .1;
@@ -174,6 +175,11 @@ class Game{
 //                float u = (float)(((int)index) % sprite_count_x) / (float) sprite_count_x;
 //                float v = (float)(((int)index) / sprite_count_x) / (float) sprite_count_y;
                 Entity tile = Entity(x*tileSize,-y*tileSize,0,0,index, sprite_count_x, sprite_count_y,0,0,0,spriteSheetTexture,scale);
+=======
+                float u = (float)(((int)index) % 30) / (float) 30;
+                float v = (float)(((int)index) / 30) / (float) 16;
+                Entity tile = Entity(x/3.34,-y/3.34,0,0,1.0/30,1.0/30,0,0,0,u,v,spriteSheetTexture,.3);
+>>>>>>> parent of c059fe0... Halp
                 tiles.push_back(tile);
             }
         }
@@ -285,6 +291,10 @@ int main(int argc, char *argv[])
 {
     
     Setup();
+<<<<<<< HEAD
+=======
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/30, 1.0/16, .2f);
+>>>>>>> parent of c059fe0... Halp
 
 //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, fint textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
     entities.push_back(Entity(0,-.8,0,0,98,16,8,0,0,0,spriteSheetTexture, .1f));

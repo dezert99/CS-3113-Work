@@ -228,7 +228,7 @@ class Game{
         }
         bulletTimer += elapsed;
         if(score == 28){
-            DrawText(texteredShader, fontTexture, "Congrats! You Win", -.87, 0, .1, .01);
+            DrawText(texteredShader, fontTexture, "Congrats! You Win!", -.87, 0, .1, .01);
         }
         //DrawText(ShaderProgram &program, int fontTexture, std::string text, float size, float spacing)
         

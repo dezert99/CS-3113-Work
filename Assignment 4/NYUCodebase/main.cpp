@@ -168,7 +168,7 @@ class Game{
                 int index = map.mapData[y][x];
                 float u = (float)(((int)index) % 30) / (float) 30;
                 float v = (float)(((int)index) / 30) / (float) 16;
-                Entity tile = Entity(x,-y,0,0,.035,.035,0,0,0,u,v,spriteSheetTexture,.3);
+                Entity tile = Entity(x/3.34,-y/3.34,0,0,1.0/30,1.0/30,0,0,0,u,v,spriteSheetTexture,.3);
                 tiles.push_back(tile);
                 
             }
@@ -182,7 +182,7 @@ class Game{
                 done = true;
             }
             else if (event.type == SDL_KEYDOWN){
-                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE && bulletTimer >=1) {
+                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
                     
                 }
             }
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 {
     
     Setup();
-    SheetSprite mySprite = SheetSprite(spriteSheetTexture, 112.0f/1024.0f, 866.0f/1024.0f, 112.0f/1024.0f, 75.0f/1024.0f, .2f);
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/30, 1.0/16, .2f);
 
 //Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float size);
     entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));

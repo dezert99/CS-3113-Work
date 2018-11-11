@@ -19,6 +19,9 @@
 #endif
 #include "Entity.hpp"
 
+#define FIXED_TIMESTEP 0.0166666f
+#define MAX_TIMESTEPS 6
+
 //GLobals
 glm::mat4 projectionMatrix = glm::mat4(1.0f);
 SDL_Event event;
@@ -37,9 +40,17 @@ GLuint fontTexture;
 int score = 0;
 enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
 GameMode mode = STATE_MAIN_MENU;
-std::vector<Entity> tiles;
+std::vector<Entity> coins;
 std::vector<float> vertexData;
 std::vector<float> texCoordData;
+int sprite_count_x = 16;
+int sprite_count_y = 8;
+float tileSize = .1;
+float scale = .1;
+FlareMap map;
+std::vector<int> solids;
+float gravity = .01f;
+float accumulator = 0.0f;
 
 
 SDL_Window* displayWindow;
@@ -103,22 +114,46 @@ void DrawText(ShaderProgram &program, int fontTexture, std::string text, float x
     glDisableVertexAttribArray(program.texCoordAttribute);
 }
 void drawMap(){
+    
     glUseProgram(texteredShader.programID);
     glm::mat4 mapModelMatrix = glm::mat4(1.0);
     texteredShader.SetModelMatrix(mapModelMatrix);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glVertexAttribPointer(texteredShader.positionAttribute, 2, GL_FLOAT, false, 0, vertexData.data());
     glEnableVertexAttribArray(texteredShader.positionAttribute);
     glVertexAttribPointer(texteredShader.texCoordAttribute, 2, GL_FLOAT, false, 0, texCoordData.data());
     glEnableVertexAttribArray(texteredShader.texCoordAttribute);
-    glBindTexture(GL_TEXTURE_2D, fontTexture);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindTexture(GL_TEXTURE_2D, spriteSheetTexture);
+    glDrawArrays(GL_TRIANGLES, 0, vertexData.size()/2);
     
     glDisableVertexAttribArray(texteredShader.positionAttribute);
     glDisableVertexAttribArray(texteredShader.texCoordAttribute);
 }
+
+void worldToTileCoordinates(float worldX, float worldY, int *gridX, int *gridY) {
+    *gridX = (int)(worldX / tileSize);
+    *gridY = (int)(worldY / -tileSize);
+}
+bool playerCollideBottom(){
+    int gridX =0;
+    int gridY = 0;
+    
+    gridX = (int)(entities[0].position.x / tileSize);
+    gridY = (int)(entities[0].position.y/ -tileSize);
+    std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
+    for(int solidID: solids){
+        if(map.mapData[gridY][gridX] == solidID){
+            entities[0].collidedBottom = true;
+            entities[0].position.y += fabs((-tileSize * gridY) - entities[0].position.y - entities[0].height/2) +.001 ;
+            return true;
+        }
+    }
+    entities[0].collidedBottom = false;
+    return false;
+}
+
 class MainMenu {
 public:
     void Render() {
@@ -174,40 +209,42 @@ class Game{
         glBindTexture(GL_TEXTURE_2D, spriteSheetTexture);
         fontTexture = LoadTexture(RESOURCE_FOLDER"pixel_font.png");
         //glClearColor(.364705, .737254, .823529, 1);
-        FlareMap map;
+        
 
-        map.Load(RESOURCE_FOLDER"Platformer 1.txt");
+        map.Load(RESOURCE_FOLDER"Platformer 2.txt");
 
         
         //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, float u = -4, float v = -4, int textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
-        for(int x=0; x < map.mapWidth; x++) {
-            for(int y=0; y < map.mapHeight; y++) {
-                // check map.mapData[y][x] for tile index
-                int index = map.mapData[y][x];
-                int sprite_count_x = 16;
-                int sprite_count_y = 8;
-                float tileSize = .1;
-                float scale = .1;
-                float texture_x = (float)(((int)x) % sprite_count_x) / sprite_count_x;
-                float texture_y = (float)(((int)y) / sprite_count_x) / sprite_count_y;
-                    vertexData.insert(vertexData.end(), {
-                        tileSize * x, (-tileSize * y),
-                        tileSize * x, (-tileSize * y) - tileSize,
-                        tileSize * x + tileSize, (-tileSize * y),
-                        tileSize * x, (-tileSize * y) - tileSize,
-                        tileSize * x + tileSize,(-tileSize * y),
-                        tileSize * x + tileSize, (-tileSize * y) - tileSize,
-                    });
-                    texCoordData.insert(texCoordData.end(), {
-                        texture_x, texture_y,
-                        texture_x, texture_y + .03f,
-                        texture_x + .03f, texture_y,
-                        texture_x + .03f , texture_y + .03f,
-                        texture_x + .03f, texture_y,
-                        texture_x, texture_y + .03f,
-                    });
-            }
-        }
+        
+                for(int y=0; y < map.mapHeight; y++) {
+                    for(int x=0; x < map.mapWidth; x++) {
+                        
+                        if(map.mapData[y][x] != 0 && map.mapData[y][x] != 12){
+                            float u = (float)(((int)map.mapData[y][x]) % sprite_count_x) / (float) sprite_count_x;
+                            float v = (float)(((int)map.mapData[y][x]) / sprite_count_x) / (float) sprite_count_y;
+                            float spriteWidth = 1.0f/(float)sprite_count_x;
+                            float spriteHeight = 1.0f/(float)sprite_count_y;
+                            vertexData.insert(vertexData.end(), {
+                                tileSize * x, -tileSize * y,
+                                tileSize * x, (-tileSize * y)-tileSize,
+                                (tileSize * x)+tileSize, (-tileSize * y)-tileSize,
+                                tileSize * x, -tileSize * y,
+                                (tileSize * x)+tileSize, (-tileSize * y)-tileSize,
+                                (tileSize * x)+tileSize, -tileSize * y
+                            });
+                            texCoordData.insert(texCoordData.end(), {
+                                u, v,
+                                u, v+(spriteHeight),
+                                u+spriteWidth, v+(spriteHeight),
+                                u, v,
+                                u+spriteWidth, v+(spriteHeight),
+                                u+spriteWidth, v
+                            });
+                        }
+                    }
+                }
+        //Setup solids
+        solids.push_back(17);
 
     }
     void ProcessEvents(){
@@ -217,36 +254,51 @@ class Game{
             }
             else if (event.type == SDL_KEYDOWN){
                 if(event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-                    
+                    entities[0].velocity.y = .3 ;
                 }
             }
         }
     }
-    void Update(){
+    void Update(float elapsedUpdate = elapsed){
         glClear(GL_COLOR_BUFFER_BIT);
-        float ticks = (float)SDL_GetTicks()/1000.0f;
-        elapsed = ticks - lastFrameTicks;
-        lastFrameTicks = ticks;
+        
         modelMatrix = glm::mat4(1.0f);
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         if(keys[SDL_SCANCODE_LEFT]) {
-            entities[0].velocity.x = -2;
+            entities[0].velocity.x = -.3;
         } else if(keys[SDL_SCANCODE_RIGHT]) {
-            entities[0].velocity.x = 2;
+            entities[0].velocity.x = .3;
         }
         else{
             entities[0].velocity.x = 0;
         }
-        if(keys[SDL_SCANCODE_UP]) {
-            entities[0].velocity.y = 2;
-        } else if(keys[SDL_SCANCODE_DOWN]) {
-            entities[0].velocity.y = -2;
+        //std::cout << playerCollideBottom() << std::endl;
+        if(!entities[0].collidedBottom){
+            entities[0].velocity.y -= gravity;
         }
         else{
             entities[0].velocity.y = 0;
         }
+        playerCollideBottom();
+        //entities[0].velocity.y = 0;
+//        if(keys[SDL_SCANCODE_UP]) {
+//            entities[0].velocity.y = 2;
+//        } else if(keys[SDL_SCANCODE_DOWN]) {
+//            entities[0].velocity.y = -2;
+//        }
+//        else{
+//            entities[0].velocity.y = 0;
+//        }
+        for(Entity& coin: coins){
+            if(entities[0].collision(coin)){
+                coin.position.y = -100;
+            }
+        }
+//        if(entities[0].collision(coins[0])){
+//            coins[0].position.y = -100;
+//        }
         
-        entities[0].update(elapsed);
+        entities[0].update(elapsedUpdate);
         viewMatrix = glm::mat4(1.0f);
         viewMatrix = glm::translate(viewMatrix, glm::vec3(-entities[0].position.x,-entities[0].position.y,0.0f));
         texteredShader.SetViewMatrix(viewMatrix);
@@ -255,7 +307,13 @@ class Game{
     void Render(){
         DrawText(texteredShader, fontTexture, "Score: "+std::to_string(score), -1.73,.95,.05, .01);
         drawMap();
-        //entities[0].Draw(texteredShader, elapsed);
+        for(Entity& e: entities){
+            e.Draw(texteredShader, elapsed);
+        }
+        for(Entity& coin: coins){
+            coin.Draw(texteredShader, elapsed);
+        }
+
     }
     void CleanUp(){
         
@@ -279,13 +337,13 @@ void ProcessEvents(){
             break;
     }
 }
-void Update(){
+void Update(float elapsedUpdate = elapsed){
     switch(mode){
         case STATE_MAIN_MENU:
             menu.Update();
             break;
         case STATE_GAME_LEVEL:
-            game.Update();
+            game.Update(elapsedUpdate);
             break;
     }
 }
@@ -314,12 +372,33 @@ int main(int argc, char *argv[])
 {
     
     Setup();
-    SheetSprite mySprite = SheetSprite(spriteSheetTexture,.635f, .01f, 1.0/16, 1.0/8, .2f);
+    float u = (float)(((int)80) % sprite_count_x) / (float) sprite_count_x;
+    float v = (float)(((int)80) / sprite_count_x) / (float) sprite_count_y;
+    float spriteWidth = 1.0f/(float)sprite_count_x;
+    float spriteHeight = 1.0f/(float)sprite_count_y;
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture,u, v,spriteWidth , spriteHeight, tileSize);
+    u = (float)(((int)52) % sprite_count_x) / (float) sprite_count_x;
+    v = (float)(((int)52) / sprite_count_x) / (float) sprite_count_y;
+    SheetSprite coin = SheetSprite(spriteSheetTexture,u, v,spriteWidth , spriteHeight, tileSize);
 
 //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, fint textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
     entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));
+    coins.push_back(Entity(.4,-1.25,-.1,0,coin.width,coin.height,0,0,0,coin.u,coin.v,coin.textureID, coin.size));
+    coins.push_back(Entity(1.338,-1.14,-.1,0,coin.width,coin.height,0,0,0,coin.u,coin.v,coin.textureID, coin.size));
     while (!done) {
-        
+        float ticks = (float)SDL_GetTicks()/1000.0f;
+        elapsed = ticks - lastFrameTicks;
+        lastFrameTicks = ticks;
+        elapsed += accumulator;
+        if(elapsed < FIXED_TIMESTEP) {
+            accumulator = elapsed;
+            continue; }
+        while(elapsed >= FIXED_TIMESTEP) {
+            Update(FIXED_TIMESTEP);
+            elapsed -= FIXED_TIMESTEP;
+        }
+        accumulator = elapsed;
+
         ProcessEvents();
         Update();
         Render();

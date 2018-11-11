@@ -22,17 +22,17 @@ void SheetSprite::Draw(ShaderProgram &program, float x, float y) const {
         u, v+height,
         u+width, v+height
     };
-    float aspect = width/height;
+    //float aspect = width/height;
     glm::mat4 modelMatrix = glm::mat4(1.0f);
     modelMatrix = glm::translate(modelMatrix, glm::vec3(x, y, 1.0f));
     program.SetModelMatrix(modelMatrix);
     //float aspect = width / height;
-    float vertices[] = {-0.5f * size * aspect, -0.5f * size,
-        0.5f * size * aspect, 0.5f * size,
-        -0.5f * size * aspect, 0.5f * size,
-        0.5f * size * aspect, 0.5f * size,
-        -0.5f * size * aspect, -0.5f * size ,
-        0.5f * size * aspect, -0.5f * size};
+    float vertices[] = {-0.5f * size , -0.5f * size,
+        0.5f * size , 0.5f * size,
+        -0.5f * size , 0.5f * size,
+        0.5f * size , 0.5f * size,
+        -0.5f * size , -0.5f * size ,
+        0.5f * size , -0.5f * size};
     // draw our arrays
     glVertexAttribPointer(program.positionAttribute, 2, GL_FLOAT, false, 0, vertices);
     glEnableVertexAttribArray(program.positionAttribute);

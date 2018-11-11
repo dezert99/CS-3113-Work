@@ -24,6 +24,7 @@
 		A6229B262175529700BF0558 /* house.png in Resources */ = {isa = PBXBuildFile; fileRef = A6229B252175529700BF0558 /* house.png */; };
 		A65E789C2195055B005D928A /* FlareMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A65E789B2195055B005D928A /* FlareMap.cpp */; };
 		A65E789E21950AD9005D928A /* Platformer 1.txt in Resources */ = {isa = PBXBuildFile; fileRef = A65E789D21950AD9005D928A /* Platformer 1.txt */; };
+		A65E78A021989C27005D928A /* Platformer 2.txt in Resources */ = {isa = PBXBuildFile; fileRef = A65E789F21989C27005D928A /* Platformer 2.txt */; };
 		A69F92D82178031E007808D1 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A69F92D62178031E007808D1 /* Entity.cpp */; };
 		A69F92DB2178054C007808D1 /* SheetSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A69F92D92178054C007808D1 /* SheetSprite.cpp */; };
 		A6A9B9CF217FDE44004C860A /* pixel_font.png in Resources */ = {isa = PBXBuildFile; fileRef = A6A9B9CE217FDE44004C860A /* pixel_font.png */; };
@@ -54,6 +55,7 @@
 		A65E789A2195055B005D928A /* FlareMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlareMap.h; sourceTree = "<group>"; };
 		A65E789B2195055B005D928A /* FlareMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlareMap.cpp; sourceTree = "<group>"; };
 		A65E789D21950AD9005D928A /* Platformer 1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Platformer 1.txt"; sourceTree = "<group>"; };
+		A65E789F21989C27005D928A /* Platformer 2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Platformer 2.txt"; sourceTree = "<group>"; };
 		A69F92D62178031E007808D1 /* Entity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		A69F92D72178031E007808D1 /* Entity.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Entity.hpp; sourceTree = "<group>"; };
 		A69F92D92178054C007808D1 /* SheetSprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SheetSprite.cpp; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 		6D5A86E119AE5CAA0066C1FD /* Code */ = {
 			isa = PBXGroup;
 			children = (
+				A65E789F21989C27005D928A /* Platformer 2.txt */,
 				A65E789D21950AD9005D928A /* Platformer 1.txt */,
 				A65E789B2195055B005D928A /* FlareMap.cpp */,
 				A65E789A2195055B005D928A /* FlareMap.h */,
@@ -216,6 +219,7 @@
 				A6229B262175529700BF0558 /* house.png in Resources */,
 				6DEF23C11B96CC2600BCE792 /* fragment.glsl in Resources */,
 				6DE9D2F11BA6AB8C002D599C /* fragment_textured.glsl in Resources */,
+				A65E78A021989C27005D928A /* Platformer 2.txt in Resources */,
 				6D5A86C619AE5C710066C1FD /* Images.xcassets in Resources */,
 				6D5A86BE19AE5C710066C1FD /* Credits.rtf in Resources */,
 				A6229B2421754FF000BF0558 /* sheet.png in Resources */,

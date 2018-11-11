@@ -26,6 +26,7 @@ public:
     void Draw(ShaderProgram &p, float elapsed);
     void update(float elapsed);
     bool collision(Entity &e);
+    bool collidedBottom = false;
     vec2 position;
     float rotation;
     int textureID;

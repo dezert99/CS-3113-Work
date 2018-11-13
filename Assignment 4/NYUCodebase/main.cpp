@@ -51,6 +51,7 @@ FlareMap map;
 std::vector<int> solids;
 float gravity = .01f;
 float accumulator = 0.0f;
+bool canJump = false;
 
 
 SDL_Window* displayWindow;
@@ -141,23 +142,78 @@ bool playerCollideBottom(){
     int gridY = 0;
     
     gridX = (int)(entities[0].position.x / tileSize);
-    gridY = (int)(entities[0].position.y/ -tileSize);
-    std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
-    for(int solidID: solids){
-        if(map.mapData[gridY][gridX] == solidID){
-            entities[0].collidedBottom = true;
-            entities[0].position.y += fabs((-tileSize * gridY) - entities[0].position.y - entities[0].height/2) +.001 ;
-            return true;
+    gridY = (int)((entities[0].position.y - (entities[0].height / 2)) / -tileSize);
+    //std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
+    if(gridX < map.mapWidth && gridY < map.mapHeight){
+        for(int solidID: solids){
+            if(map.mapData[gridY][gridX] == solidID){
+                entities[0].collidedBottom = true;
+                entities[0].position.y += fabs((-tileSize * gridY) - (entities[0].position.y - entities[0].height/2))+.001;
+                canJump = true;
+                return true;
+            }
         }
     }
     entities[0].collidedBottom = false;
     return false;
 }
-
+bool playerCollideTop(){
+    int gridX =0;
+    int gridY = 0;
+    
+    gridX = (int)(entities[0].position.x / tileSize);
+    gridY = (int)((entities[0].position.y + (entities[0].height / 2)) / -tileSize);
+    //std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
+    if(gridX < map.mapWidth && gridY < map.mapHeight){
+        for(int solidID: solids){
+            if(map.mapData[gridY][gridX] == solidID){
+                entities[0].position.y -= fabs(((-tileSize * gridY) -tileSize) - (entities[0].position.y + entities[0].height/2))+.001;
+                return true;
+            }
+        }
+    }
+    entities[0].collidedBottom = false;
+    return false;
+}
+bool playerCollideLeft(){
+    int gridX =0;
+    int gridY = 0;
+    
+    gridX = (int)((entities[0].position.x - (entities[0].width / 2))/ tileSize);
+    gridY = (int)(entities[0].position.y / -tileSize);
+    std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
+    if(gridX < map.mapWidth && gridY < map.mapHeight){
+        for(int solidID: solids){
+            if(map.mapData[gridY][gridX] == solidID){
+                entities[0].position.x += fabs(((tileSize * gridX) - tileSize) - (entities[0].position.x - entities[0].width/2))+.001;
+                return true;
+            }
+        }
+    }
+    entities[0].collidedBottom = false;
+    return false;
+}
+bool playerCollideRight(){
+    int gridX =0;
+    int gridY = 0;
+    
+    gridX = (int)((entities[0].position.x + (entities[0].width / 2))/ tileSize);
+    gridY = (int)(entities[0].position.y / -tileSize);
+    std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
+    if(gridX < map.mapWidth && gridY < map.mapHeight){
+        for(int solidID: solids){
+            if(map.mapData[gridY][gridX] == solidID){
+                entities[0].position.x -= fabs(((tileSize * gridX) + tileSize) - (entities[0].position.x + entities[0].width/2))+.001;
+                return true;
+            }
+        }
+    }
+    return false;
+}
 class MainMenu {
 public:
     void Render() {
-        DrawText(texteredShader, fontTexture, "Space Invaders by Chris. Space to start!", -1.12,0,0.05, .01);
+        DrawText(texteredShader, fontTexture, "Jumpy bug, by Christopher Martinez", -1.12,0,0.05, .01);
     }
     void Update() {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -253,8 +309,9 @@ class Game{
                 done = true;
             }
             else if (event.type == SDL_KEYDOWN){
-                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-                    entities[0].velocity.y = .3 ;
+                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE && canJump) {
+                    entities[0].velocity.y = .8;
+                    canJump = false;
                 }
             }
         }
@@ -273,13 +330,11 @@ class Game{
             entities[0].velocity.x = 0;
         }
         //std::cout << playerCollideBottom() << std::endl;
-        if(!entities[0].collidedBottom){
-            entities[0].velocity.y -= gravity;
-        }
-        else{
+        entities[0].velocity.y -= gravity;
+        if(playerCollideBottom()||playerCollideTop()){
             entities[0].velocity.y = 0;
         }
-        playerCollideBottom();
+        playerCollideLeft();
         //entities[0].velocity.y = 0;
 //        if(keys[SDL_SCANCODE_UP]) {
 //            entities[0].velocity.y = 2;

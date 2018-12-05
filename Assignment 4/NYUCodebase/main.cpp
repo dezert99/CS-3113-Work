@@ -142,13 +142,13 @@ bool playerCollideBottom(){
     int gridY = 0;
     
     gridX = (int)(entities[0].position.x / tileSize);
-    gridY = (int)((entities[0].position.y - (entities[0].height / 2)) / -tileSize);
+    gridY = (int)((entities[0].position.y - (tileSize/ 2)) / -tileSize);
     //std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
     if(gridX < map.mapWidth && gridY < map.mapHeight){
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
                 entities[0].collidedBottom = true;
-                entities[0].position.y += fabs((-tileSize * gridY) - (entities[0].position.y - entities[0].height/2))+.001;
+                entities[0].position.y += fabs((-tileSize * gridY) - (entities[0].position.y - tileSize/2))+.001;
                 canJump = true;
                 return true;
             }
@@ -310,6 +310,7 @@ class Game{
             }
             else if (event.type == SDL_KEYDOWN){
                 if(event.key.keysym.scancode == SDL_SCANCODE_SPACE && canJump) {
+                    entities[0].position.y+=.02;
                     entities[0].velocity.y = .8;
                     canJump = false;
                 }

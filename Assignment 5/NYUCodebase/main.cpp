@@ -25,36 +25,43 @@
 #define MAX_TIMESTEPS 6
 
 //GLobals
-glm::mat4 projectionMatrix = glm::mat4(1.0f);
-SDL_Event event;
 bool done = false;
+SDL_Event event;
+
+glm::mat4 projectionMatrix = glm::mat4(1.0f);
 glm::mat4 modelMatrix = glm::mat4(1.0f);
 glm::mat4 viewMatrix = glm::mat4(1.0f);
-float lastFrameTicks = 0.0f;
+
 ShaderProgram untexteredShader;
-float elapsed;
+
 GLuint spriteSheetTexture;
-//GLuint spriteSheetTexture = LoadTexture(RESOURCE_FOLDER"house.png");
-//SheetSprite mySprite = SheetSprite(spriteSheetTexture, 425.0f/1024.0f, 468.0f/1024.0f, 93.0f/1024.0f, 84.0f/1024.0f, 0.2f);
 ShaderProgram texteredShader;
 std::vector<Entity> entities;
 GLuint fontTexture;
-int score = 0;
+
 enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
 GameMode mode = STATE_MAIN_MENU;
+
 std::vector<Entity> coins;
 std::vector<float> vertexData;
 std::vector<float> texCoordData;
+
+//Sprite Sheet Drawing
 int sprite_count_x = 16;
 int sprite_count_y = 8;
 float tileSize = .1;
 float scale = .1;
 FlareMap map;
 std::vector<int> solids;
+
+//Physics
 float gravity = .01f;
-float accumulator = 0.0f;
 bool canJump = false;
 
+//Time
+float elapsed;
+float accumulator = 0.0f;
+float lastFrameTicks = 0.0f;
 
 SDL_Window* displayWindow;
 
@@ -144,13 +151,13 @@ bool playerCollideBottom(){
     int gridY = 0;
     
     gridX = (int)(entities[0].position.x / tileSize);
-    gridY = (int)((entities[0].position.y - (entities[0].height / 2)) / -tileSize);
+    gridY = (int)((entities[0].position.y - (tileSize/ 2)) / -tileSize);
     //std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
     if(gridX < map.mapWidth && gridY < map.mapHeight){
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
                 entities[0].collidedBottom = true;
-                entities[0].position.y += fabs((-tileSize * gridY) - (entities[0].position.y - entities[0].height/2))+.001;
+                entities[0].position.y += fabs((-tileSize * gridY) - (entities[0].position.y - tileSize/2))+.00001;
                 canJump = true;
                 return true;
             }
@@ -313,7 +320,8 @@ class Game{
             }
             else if (event.type == SDL_KEYDOWN){
                 if(event.key.keysym.scancode == SDL_SCANCODE_SPACE && canJump) {
-                    entities[0].velocity.y = .8;
+                    entities[0].position.y+=.02;
+                    entities[0].velocity.y = 1;
                     canJump = false;
                 }
             }
@@ -363,7 +371,7 @@ class Game{
         
     }
     void Render(){
-        DrawText(texteredShader, fontTexture, "Score: "+std::to_string(score), -1.73,.95,.05, .01);
+        DrawText(texteredShader, fontTexture, "Score: ", -1.73,.95,.05, .01);
         drawMap();
         for(Entity& e: entities){
             e.Draw(texteredShader, elapsed);
@@ -430,11 +438,11 @@ int main(int argc, char *argv[])
 {
     
     Setup();
-    float u = (float)(((int)80) % sprite_count_x) / (float) sprite_count_x;
-    float v = (float)(((int)80) / sprite_count_x) / (float) sprite_count_y;
+    float u = (float)(((int)0) % sprite_count_x) / (float) sprite_count_x;
+    float v = (float)(((int)0) / sprite_count_x) / (float) sprite_count_y;
     float spriteWidth = 1.0f/(float)sprite_count_x;
     float spriteHeight = 1.0f/(float)sprite_count_y;
-    SheetSprite mySprite = SheetSprite(spriteSheetTexture,u, v,spriteWidth , spriteHeight, tileSize);
+    SheetSprite mySprite = SheetSprite(spriteSheetTexture,u, v,spriteWidth, spriteHeight, tileSize);
     u = (float)(((int)52) % sprite_count_x) / (float) sprite_count_x;
     v = (float)(((int)52) / sprite_count_x) / (float) sprite_count_y;
     SheetSprite coin = SheetSprite(spriteSheetTexture,u, v,spriteWidth , spriteHeight, tileSize);

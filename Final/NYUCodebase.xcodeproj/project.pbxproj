@@ -21,7 +21,6 @@
 		6DEF23C31B96CC2600BCE792 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF23BE1B96CC2600BCE792 /* ShaderProgram.cpp */; };
 		6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 6DEF23C01B96CC2600BCE792 /* vertex.glsl */; };
 		A6229B2421754FF000BF0558 /* sheet.png in Resources */ = {isa = PBXBuildFile; fileRef = A6229B2321754FF000BF0558 /* sheet.png */; };
-		A6229B262175529700BF0558 /* house.png in Resources */ = {isa = PBXBuildFile; fileRef = A6229B252175529700BF0558 /* house.png */; };
 		A65E789C2195055B005D928A /* FlareMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A65E789B2195055B005D928A /* FlareMap.cpp */; };
 		A65E789E21950AD9005D928A /* Platformer 1.txt in Resources */ = {isa = PBXBuildFile; fileRef = A65E789D21950AD9005D928A /* Platformer 1.txt */; };
 		A65E78A021989C27005D928A /* Platformer 2.txt in Resources */ = {isa = PBXBuildFile; fileRef = A65E789F21989C27005D928A /* Platformer 2.txt */; };
@@ -30,6 +29,16 @@
 		A69F92D82178031E007808D1 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A69F92D62178031E007808D1 /* Entity.cpp */; };
 		A69F92DB2178054C007808D1 /* SheetSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A69F92D92178054C007808D1 /* SheetSprite.cpp */; };
 		A6A9B9CF217FDE44004C860A /* pixel_font.png in Resources */ = {isa = PBXBuildFile; fileRef = A6A9B9CE217FDE44004C860A /* pixel_font.png */; };
+		A6D4C3D521C2DCEB002E9222 /* Platformer 4.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3D421C2DCEB002E9222 /* Platformer 4.txt */; };
+		A6D4C3D721C42052002E9222 /* level 1.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3D621C42051002E9222 /* level 1.txt */; };
+		A6D4C3D921C5864F002E9222 /* level 2.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3D821C5864F002E9222 /* level 2.txt */; };
+		A6D4C3DB21C6FBEC002E9222 /* level 3.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3DA21C6FBEC002E9222 /* level 3.txt */; };
+		A6D4C3E121C703B4002E9222 /* heal.wav in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3DC21C703B4002E9222 /* heal.wav */; };
+		A6D4C3E221C703B4002E9222 /* shoot.wav in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3DD21C703B4002E9222 /* shoot.wav */; };
+		A6D4C3E321C703B4002E9222 /* hurt.wav in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3DE21C703B4002E9222 /* hurt.wav */; };
+		A6D4C3E421C703B4002E9222 /* pickup.wav in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3DF21C703B4002E9222 /* pickup.wav */; };
+		A6D4C3E521C703B4002E9222 /* hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3E021C703B4002E9222 /* hit.wav */; };
+		A6D4C3E721C70B91002E9222 /* bg.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A6D4C3E621C70B90002E9222 /* bg.mp3 */; };
 		A6E34A0321B831AE007B7347 /* Platformer 3.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6E34A0221B831AE007B7347 /* Platformer 3.txt */; };
 		A6E34A0921B8A036007B7347 /* Enemy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6E34A0721B8A036007B7347 /* Enemy.cpp */; };
 		A6E34A0B21BC6CBD007B7347 /* Movement tester map.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6E34A0A21BC6CBC007B7347 /* Movement tester map.txt */; };
@@ -56,7 +65,6 @@
 		6DEF23BF1B96CC2600BCE792 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
 		6DEF23C01B96CC2600BCE792 /* vertex.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vertex.glsl; sourceTree = "<group>"; };
 		A6229B2321754FF000BF0558 /* sheet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sheet.png; sourceTree = "<group>"; };
-		A6229B252175529700BF0558 /* house.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = house.png; sourceTree = "<group>"; };
 		A65E789A2195055B005D928A /* FlareMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlareMap.h; sourceTree = "<group>"; };
 		A65E789B2195055B005D928A /* FlareMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlareMap.cpp; sourceTree = "<group>"; };
 		A65E789D21950AD9005D928A /* Platformer 1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Platformer 1.txt"; sourceTree = "<group>"; };
@@ -68,6 +76,16 @@
 		A69F92D92178054C007808D1 /* SheetSprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SheetSprite.cpp; sourceTree = "<group>"; };
 		A69F92DA2178054C007808D1 /* SheetSprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SheetSprite.hpp; sourceTree = "<group>"; };
 		A6A9B9CE217FDE44004C860A /* pixel_font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pixel_font.png; sourceTree = "<group>"; };
+		A6D4C3D421C2DCEB002E9222 /* Platformer 4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Platformer 4.txt"; sourceTree = "<group>"; };
+		A6D4C3D621C42051002E9222 /* level 1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "level 1.txt"; sourceTree = "<group>"; };
+		A6D4C3D821C5864F002E9222 /* level 2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "level 2.txt"; sourceTree = "<group>"; };
+		A6D4C3DA21C6FBEC002E9222 /* level 3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "level 3.txt"; sourceTree = "<group>"; };
+		A6D4C3DC21C703B4002E9222 /* heal.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = heal.wav; sourceTree = "<group>"; };
+		A6D4C3DD21C703B4002E9222 /* shoot.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shoot.wav; sourceTree = "<group>"; };
+		A6D4C3DE21C703B4002E9222 /* hurt.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hurt.wav; sourceTree = "<group>"; };
+		A6D4C3DF21C703B4002E9222 /* pickup.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = pickup.wav; sourceTree = "<group>"; };
+		A6D4C3E021C703B4002E9222 /* hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hit.wav; sourceTree = "<group>"; };
+		A6D4C3E621C70B90002E9222 /* bg.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = bg.mp3; sourceTree = "<group>"; };
 		A6E34A0221B831AE007B7347 /* Platformer 3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Platformer 3.txt"; sourceTree = "<group>"; };
 		A6E34A0721B8A036007B7347 /* Enemy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Enemy.cpp; sourceTree = "<group>"; };
 		A6E34A0821B8A036007B7347 /* Enemy.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Enemy.hpp; sourceTree = "<group>"; };
@@ -153,6 +171,16 @@
 		6D5A86E119AE5CAA0066C1FD /* Code */ = {
 			isa = PBXGroup;
 			children = (
+				A6D4C3E621C70B90002E9222 /* bg.mp3 */,
+				A6D4C3DC21C703B4002E9222 /* heal.wav */,
+				A6D4C3E021C703B4002E9222 /* hit.wav */,
+				A6D4C3DE21C703B4002E9222 /* hurt.wav */,
+				A6D4C3DF21C703B4002E9222 /* pickup.wav */,
+				A6D4C3DD21C703B4002E9222 /* shoot.wav */,
+				A6D4C3DA21C6FBEC002E9222 /* level 3.txt */,
+				A6D4C3D821C5864F002E9222 /* level 2.txt */,
+				A6D4C3D621C42051002E9222 /* level 1.txt */,
+				A6D4C3D421C2DCEB002E9222 /* Platformer 4.txt */,
 				A6E34A0A21BC6CBC007B7347 /* Movement tester map.txt */,
 				A6E34A0221B831AE007B7347 /* Platformer 3.txt */,
 				A65E78A3219CEC3D005D928A /* music.mp3 */,
@@ -161,7 +189,6 @@
 				A65E789B2195055B005D928A /* FlareMap.cpp */,
 				A65E789A2195055B005D928A /* FlareMap.h */,
 				A6A9B9CE217FDE44004C860A /* pixel_font.png */,
-				A6229B252175529700BF0558 /* house.png */,
 				A6229B2321754FF000BF0558 /* sheet.png */,
 				6DEF23BB1B96CC2600BCE792 /* fragment.glsl */,
 				6DE9D2F01BA6AB8C002D599C /* fragment_textured.glsl */,
@@ -233,20 +260,29 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6D4C3E521C703B4002E9222 /* hit.wav in Resources */,
 				6D5A86B819AE5C710066C1FD /* InfoPlist.strings in Resources */,
-				A6229B262175529700BF0558 /* house.png in Resources */,
+				A6D4C3DB21C6FBEC002E9222 /* level 3.txt in Resources */,
+				A6D4C3D921C5864F002E9222 /* level 2.txt in Resources */,
 				6DEF23C11B96CC2600BCE792 /* fragment.glsl in Resources */,
 				6DE9D2F11BA6AB8C002D599C /* fragment_textured.glsl in Resources */,
 				A6E34A0B21BC6CBD007B7347 /* Movement tester map.txt in Resources */,
 				A65E78A021989C27005D928A /* Platformer 2.txt in Resources */,
+				A6D4C3D721C42052002E9222 /* level 1.txt in Resources */,
+				A6D4C3E321C703B4002E9222 /* hurt.wav in Resources */,
 				A6E34A0321B831AE007B7347 /* Platformer 3.txt in Resources */,
+				A6D4C3E121C703B4002E9222 /* heal.wav in Resources */,
 				6D5A86C619AE5C710066C1FD /* Images.xcassets in Resources */,
 				6D5A86BE19AE5C710066C1FD /* Credits.rtf in Resources */,
+				A6D4C3E421C703B4002E9222 /* pickup.wav in Resources */,
 				A6229B2421754FF000BF0558 /* sheet.png in Resources */,
 				A65E789E21950AD9005D928A /* Platformer 1.txt in Resources */,
 				A65E78A4219CEC3D005D928A /* music.mp3 in Resources */,
+				A6D4C3E221C703B4002E9222 /* shoot.wav in Resources */,
+				A6D4C3E721C70B91002E9222 /* bg.mp3 in Resources */,
 				A6A9B9CF217FDE44004C860A /* pixel_font.png in Resources */,
 				6DEF23C41B96CC2600BCE792 /* vertex.glsl in Resources */,
+				A6D4C3D521C2DCEB002E9222 /* Platformer 4.txt in Resources */,
 				6DC7076A1BA7273500225B7D /* vertex_textured.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

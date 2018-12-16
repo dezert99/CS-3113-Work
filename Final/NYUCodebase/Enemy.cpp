@@ -28,7 +28,7 @@ void Enemy::testingPoints(){
     if(gridX < map->mapWidth && gridY < map->mapHeight){
         for(int solidID: *solids){
             if(map->mapData[gridY][gridX] == solidID){
-                std::cout << "In" << std::endl;
+                //a std::cout << "In" << std::endl;
                 testPoints[0] = true;
                 break;
             }
@@ -80,6 +80,33 @@ void Enemy::update(float elapsed){
     checkState();
     if(state == 0){
         if(travelDirection==1){
+            if(testPoints[1] == false || collidedRight){
+                travelDirection = -1;
+                velocity.x *=-1;
+            }
+        }
+        else if(travelDirection==-1){
+            if(testPoints[0]==false  || collidedLeft){
+                travelDirection = 1;
+                velocity.x *=-1;
+            }
+        }
+        
+    }
+    else{
+        if(player->position.x < position.x){
+            travelDirection = -1;
+            if(velocity.x>0){
+                velocity.x *= -1;
+            }
+        }
+        else{
+            travelDirection = 1;
+            if(velocity.x<0){
+                velocity.x *= -1;
+            }
+        }
+        if(travelDirection==1){
             if(testPoints[1] == false){
                 travelDirection = -1;
                 velocity.x *=-1;
@@ -91,12 +118,24 @@ void Enemy::update(float elapsed){
                 velocity.x *=-1;
             }
         }
-        position.x += velocity.x *elapsed;
-        position.y += velocity.y * elapsed;
     }
+    position.x += velocity.x *elapsed;
+    position.y += velocity.y * elapsed;
+}
+bool Enemy::collision(){
+    float x_distance = abs(player->position.x-position.x)-((player->sprite.size+sprite.size)/2);
+    float y_distance = abs(player->position.y-position.y)-((player->sprite.size+sprite.size)/2);
+    if(x_distance< 0 && y_distance < 0){
+        return true;
+    }
+    return false;
 }
 void Enemy::checkState(){
-    if(abs(player->position.y-position.y) <= .01&&abs(player->position.x-position.x)<=.01){
+    if(abs(player->position.y-position.y) <= .05&&abs(player->position.x-position.x)<=.3){
         state = 1;
     }
+    else {
+        state = 0;
+    }
 }
+

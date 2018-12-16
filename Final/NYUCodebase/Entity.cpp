@@ -40,9 +40,9 @@ void Entity::update(float elapsed){
     position.x += velocity.x *elapsed;
     position.y += velocity.y * elapsed;
 }
-bool Entity::collision(Entity &e){
-    float x_distance = abs(e.position.x-position.x)-((e.width+width));
-    float y_distance = abs(e.position.y-position.y)-((e.height+height));
+bool Entity::collision(Entity& e){
+    float x_distance = abs(e.position.x-position.x)-((e.sprite.size+sprite.size)/2);
+    float y_distance = abs(e.position.y-position.y)-((e.sprite.size+sprite.size)/2);
     if(x_distance< 0 && y_distance < 0){
         return true;
     }

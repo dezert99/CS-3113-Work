@@ -306,6 +306,7 @@ int main(int argc, char *argv[])
     SheetSprite bullet = SheetSprite(spriteSheetTexture, 849.0f/1024.0f, 364.0f/1024.0f, 9.0f/1024.0f, 57.0f/1024.0f, .2f);
 //Entity(float x, float y, float velocity_x, float velocity_y, float width, float height , float r, float g, float b, float u, float v , int textureID, float size);
     entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));
+    
     float x = -1.5;
     float y = .2;
     for(int i = 0; i <4; i++){

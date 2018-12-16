@@ -39,12 +39,23 @@ GLuint spriteSheetTexture;
 ShaderProgram texteredShader;
 std::vector<Entity> entities;
 std::vector<Enemy> enemies;
+std::vector<Entity> bullets;
+std::vector<Entity> healthUp;
+
+//Game
+int bulletCount = 0;
+int health = 3;
+int score = 0;
+float hitTimer = 3.0;
+int level = 1;
+
+
 GLuint fontTexture;
 
 enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
 GameMode mode = STATE_MAIN_MENU;
 
-std::vector<Entity> coins;
+std::vector<Entity> power;
 std::vector<float> vertexData;
 std::vector<float> texCoordData;
 
@@ -54,7 +65,7 @@ int sprite_count_y = 8;
 float tileSize = .1;
 float scale = .1;
 FlareMap map;
-std::vector<int> solids;
+std::vector<int> solids = {17, 33, 34, 35, 32, 1, 3, 100, 101};
 
 //Physics
 float gravity = .017f;
@@ -66,6 +77,14 @@ int jumps = 2;
 float elapsed;
 float accumulator = 0.0f;
 float lastFrameTicks = 0.0f;
+
+//Sound
+Mix_Chunk *hurt;
+Mix_Chunk *shoot;
+Mix_Chunk *jump;
+Mix_Chunk *enemyHit;
+Mix_Chunk *heal;
+Mix_Chunk *pickup;
 
 SDL_Window* displayWindow;
 
@@ -127,6 +146,36 @@ void DrawText(ShaderProgram &program, int fontTexture, std::string text, float x
     glDisableVertexAttribArray(program.positionAttribute);
     glDisableVertexAttribArray(program.texCoordAttribute);
 }
+
+void renderEntities(){
+    for(FlareMapEntity ent: map.entities){
+        if(ent.type == "enemy"){
+            float u = (float)((102) % sprite_count_x) / (float) sprite_count_x;
+            float v = (float)((102) / sprite_count_x) / (float) sprite_count_y;
+            float spriteWidth = 1.0f/(float)sprite_count_x;
+            float spriteHeight = 1.0f/(float)sprite_count_y;
+            SheetSprite enemy = SheetSprite(spriteSheetTexture,u, v,spriteWidth, spriteHeight, tileSize);
+            enemies.push_back(Enemy(ent.x*tileSize,ent.y*-tileSize, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+        }
+        else if(ent.type == "power"){
+            float u = (float)((38) % sprite_count_x) / (float) sprite_count_x;
+            float v = (float)((38) / sprite_count_x) / (float) sprite_count_y;
+            float spriteWidth = 1.0f/(float)sprite_count_x;
+            float spriteHeight = 1.0f/(float)sprite_count_y;
+            SheetSprite powerSprite = SheetSprite(spriteSheetTexture,u, v,spriteWidth, spriteHeight, tileSize);
+            power.push_back(Entity(ent.x*tileSize,ent.y*-tileSize,0,0,powerSprite.width,powerSprite.height,0,0,0,powerSprite.u,powerSprite.v,powerSprite.textureID, powerSprite.size));
+        }
+        else if(ent.type == "health"){
+            float u = (float)((27) % sprite_count_x) / (float) sprite_count_x;
+            float v = (float)((27) / sprite_count_x) / (float) sprite_count_y;
+            float spriteWidth = 1.0f/(float)sprite_count_x;
+            float spriteHeight = 1.0f/(float)sprite_count_y;
+            SheetSprite healthSprite = SheetSprite(spriteSheetTexture,u, v,spriteWidth, spriteHeight, tileSize);
+            healthUp.push_back(Entity(ent.x*tileSize,ent.y*-tileSize,0,0,healthSprite.width,healthSprite.height,0,0,0,healthSprite.u,healthSprite.v,healthSprite.textureID, healthSprite.size));
+        }
+    }
+}
+
 void drawMap(){
     
     glUseProgram(texteredShader.programID);
@@ -160,6 +209,13 @@ bool playerCollideBottom(){
     if(gridX < map.mapWidth && gridY < map.mapHeight){
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
+                if(map.mapData[gridY][gridX] == 100 || map.mapData[gridY][gridX] == 101){
+                    if(hitTimer<0){
+                        health--;
+                        hitTimer = 3;
+                        Mix_PlayChannel( -1, hurt, 0);
+                    }
+                }
                 entities[0].collidedBottom = true;
                 entities[0].position.y += fabs((-tileSize * gridY) - (entities[0].position.y - tileSize/2))+.00001;
                 jumps = 2;
@@ -214,6 +270,52 @@ bool playerCollideRight(){
     gridY = (int)(entities[0].position.y / -tileSize);
     //std::cout << "gridX: " << gridX << " gridY: " << gridY << " Postion x: "<< entities[0].position.x << " Postion y: "<< entities[0].position.y <<std::endl;
     if(gridX < map.mapWidth && gridY < map.mapHeight){
+        if(map.mapData[gridY][gridX] == 12){
+            level++;
+            enemies.clear();
+            power.clear();
+            healthUp.clear();
+            map.entities.clear();
+            if(level == 2){
+                map.Load(RESOURCE_FOLDER"level 2.txt");
+            }
+            else{
+                map.Load(RESOURCE_FOLDER"level 3.txt");
+                entities[0].position.x = 48/entities[0].sprite.size;
+                entities[0].position.y = 30/entities[0].sprite.size;
+            }
+            vertexData.clear();
+            texCoordData.clear();
+            for(int y=0; y < map.mapHeight; y++) {
+                for(int x=0; x < map.mapWidth; x++) {
+                    if(map.mapData[y][x] != 0){
+                        float u = (float)(((int)map.mapData[y][x]) % sprite_count_x) / (float) sprite_count_x;
+                        float v = (float)(((int)map.mapData[y][x]) / sprite_count_x) / (float) sprite_count_y;
+                        float spriteWidth = 1.0f/(float)sprite_count_x;
+                        float spriteHeight = 1.0f/(float)sprite_count_y;
+                        vertexData.insert(vertexData.end(), {
+                            tileSize * x, -tileSize * y,
+                            tileSize * x, (-tileSize * y)-tileSize,
+                            (tileSize * x)+tileSize, (-tileSize * y)-tileSize,
+                            tileSize * x, -tileSize * y,
+                            (tileSize * x)+tileSize, (-tileSize * y)-tileSize,
+                            (tileSize * x)+tileSize, -tileSize * y
+                        });
+                        texCoordData.insert(texCoordData.end(), {
+                            u, v,
+                            u, v+(spriteHeight),
+                            u+spriteWidth, v+(spriteHeight),
+                            u, v,
+                            u+spriteWidth, v+(spriteHeight),
+                            u+spriteWidth, v
+                        });
+                    }
+                }
+                entities[0].position.x = 48*tileSize;
+                entities[0].position.y = 11*(-tileSize);
+            }
+            renderEntities();
+        }
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
                 entities[0].position.x -= fabs(((tileSize * gridX)) - (entities[0].position.x + tileSize/2))+.001;
@@ -236,7 +338,6 @@ bool entityCollideBottom(Entity& ent){
             if(map.mapData[gridY][gridX] == solidID){
                 ent.collidedBottom = true;
                 ent.position.y += fabs((-tileSize * gridY) - (ent.position.y - tileSize/2))+.00001;
-                jumps = 2;
                 return true;
             }
         }
@@ -254,12 +355,13 @@ bool entityCollideTop(Entity& ent){
     if(gridX < map.mapWidth && gridY < map.mapHeight){
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
+                ent.collidedTop = true;
                 ent.position.y -= fabs(((-tileSize * gridY) -tileSize) - (ent.position.y + tileSize/2))+.001;
                 return true;
             }
         }
     }
-    ent.collidedBottom = false;
+    ent.collidedTop = false;
     return false;
 }
 bool entityCollideLeft(Entity& ent){
@@ -272,12 +374,13 @@ bool entityCollideLeft(Entity& ent){
     if(gridX < map.mapWidth && gridY < map.mapHeight){
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
+                ent.collidedLeft = true;
                 ent.position.x += fabs(((tileSize * gridX) +tileSize) - (ent.position.x - tileSize/2))+.001;
                 return true;
             }
         }
     }
-    ent.collidedBottom = false;
+    ent.collidedLeft = false;
     return false;
 }
 bool entityCollideRight(Entity& ent){
@@ -290,11 +393,13 @@ bool entityCollideRight(Entity& ent){
     if(gridX < map.mapWidth && gridY < map.mapHeight){
         for(int solidID: solids){
             if(map.mapData[gridY][gridX] == solidID){
+                ent.collidedRight = true;
                 ent.position.x -= fabs(((tileSize * gridX)) - (ent.position.x + tileSize/2))+.001;
                 return true;
             }
         }
     }
+    ent.collidedRight = false;
     return false;
 }
 // Test of test points on player
@@ -361,6 +466,8 @@ void testingPoints(){
     //std::cout << testPoints[0] << " "<< testPoints[1] << " " << testPoints[2] << " " << testPoints[3] << std::endl;
 }
 
+
+
 class MainMenu {
 public:
     void Render() {
@@ -390,7 +497,7 @@ public:
 
 class Game{
     public:
-
+    
     void Setup(){
         SDL_Init(SDL_INIT_VIDEO);
         displayWindow = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
@@ -419,15 +526,14 @@ class Game{
         //glClearColor(.364705, .737254, .823529, 1);
         
 
-        map.Load(RESOURCE_FOLDER"Movement tester map.txt");
+        map.Load(RESOURCE_FOLDER"level 1.txt");
 
         
         //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, float u = -4, float v = -4, int textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
         
                 for(int y=0; y < map.mapHeight; y++) {
                     for(int x=0; x < map.mapWidth; x++) {
-                        
-                        if(map.mapData[y][x] != 0 && map.mapData[y][x] != 12){
+                        if(map.mapData[y][x] != 0){
                             float u = (float)(((int)map.mapData[y][x]) % sprite_count_x) / (float) sprite_count_x;
                             float v = (float)(((int)map.mapData[y][x]) / sprite_count_x) / (float) sprite_count_y;
                             float spriteWidth = 1.0f/(float)sprite_count_x;
@@ -451,9 +557,6 @@ class Game{
                         }
                     }
                 }
-        //Setup solids
-        solids.push_back(17);
-
     }
     void ProcessEvents(){
         while (SDL_PollEvent(&event)) {
@@ -463,8 +566,49 @@ class Game{
             else if (event.type == SDL_KEYDOWN){
                 if(event.key.keysym.scancode == SDL_SCANCODE_SPACE &&  jumps > 0) {
                     entities[0].position.y+=.02;
+                    Mix_PlayChannel( -1, jump, 0);
                     entities[0].velocity.y = jumpPower;
                     jumps--;
+                }
+                if(event.key.keysym.scancode == SDL_SCANCODE_DOWN){
+                    bullets[bulletCount].position.x = entities[0].position.x;
+                    bullets[bulletCount].position.y = entities[0].position.y+.01;
+                    bullets[bulletCount].velocity.y = -.5;
+                    bulletCount++;
+                    if(bulletCount > 29){
+                        bulletCount = 0;
+                    }
+                    Mix_PlayChannel( -1, shoot, 0);
+                }
+                else if(event.key.keysym.scancode == SDL_SCANCODE_LEFT){
+                    bullets[bulletCount].position.x = entities[0].position.x;
+                    bullets[bulletCount].position.y = entities[0].position.y+.01;
+                    bullets[bulletCount].velocity.x = -.5;
+                    bulletCount++;
+                    if(bulletCount > 29){
+                        bulletCount = 0;
+                    }
+                    Mix_PlayChannel( -1, shoot, 0);
+                }
+                else if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT){
+                    bullets[bulletCount].position.x = entities[0].position.x;
+                    bullets[bulletCount].position.y = entities[0].position.y+.01;
+                    bullets[bulletCount].velocity.x = .5;
+                    bulletCount++;
+                    if(bulletCount > 29){
+                        bulletCount = 0;
+                    }
+                    Mix_PlayChannel( -1, shoot, 0);
+                }
+                else if(event.key.keysym.scancode == SDL_SCANCODE_UP){
+                    bullets[bulletCount].position.x = entities[0].position.x;
+                    bullets[bulletCount].position.y = entities[0].position.y+.01;
+                    bullets[bulletCount].velocity.y = .5;
+                    bulletCount++;
+                    if(bulletCount > 29){
+                        bulletCount = 0;
+                    }
+                    Mix_PlayChannel( -1, shoot, 0);
                 }
             }
         }
@@ -475,9 +619,9 @@ class Game{
         //Movement
         modelMatrix = glm::mat4(1.0f);
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        if(keys[SDL_SCANCODE_LEFT]) {
+        if(keys[SDL_SCANCODE_A]) {
             entities[0].velocity.x = -.3;
-        } else if(keys[SDL_SCANCODE_RIGHT]) {
+        } else if(keys[SDL_SCANCODE_D]) {
             entities[0].velocity.x = .3;
         }
         else{
@@ -493,13 +637,16 @@ class Game{
         playerCollideRight();
         
         //Physics on enemys
-        enemies[0].velocity.y -= gravity;
-        if(entityCollideBottom(enemies[0])||entityCollideTop(enemies[0])){
-            std::cout << "In22" << std::endl;
-            enemies[0].velocity.y = 0;
+        for(Enemy& e: enemies){
+            e.velocity.y -= gravity;
+            if(entityCollideBottom(e)||entityCollideTop(e)){
+                //std::cout << "In22" << std::endl;
+               e.velocity.y = 0;
+            }
+            entityCollideLeft(e);
+            entityCollideRight(e);
         }
-        entityCollideLeft(enemies[0]);
-        entityCollideRight(enemies[0]);
+        
         //entities[0].velocity.y = 0;
 //        if(keys[SDL_SCANCODE_UP]) {
 //            entities[0].velocity.y = 2;
@@ -509,9 +656,18 @@ class Game{
 //        else{
 //            entities[0].velocity.y = 0;
 //        }
-        for(Entity& coin: coins){
-            if(entities[0].collision(coin)){
-                coin.position.y = -100;
+        for(Entity& power: power){
+            if(entities[0].collision(power)){
+                power.position.y = -100;
+                score +=5;
+                Mix_PlayChannel( -1, pickup, 0);
+            }
+        }
+        for(Entity& h: healthUp){
+            if(entities[0].collision(h)){
+                h.position.y = -100;
+                health +=2;
+                Mix_PlayChannel( -1, heal, 0);
             }
         }
         testingPoints();
@@ -520,25 +676,68 @@ class Game{
 //        }
         
         entities[0].update(elapsedUpdate);
-        enemies[0].update(elapsedUpdate);
+        for(Enemy& e: enemies){
+            if(e.collision() && hitTimer < 0){
+                std::cout << "Hit" << std::endl;
+                health--;
+                hitTimer = 3.0;
+                e.position.x=-10000;
+                Mix_PlayChannel( -1, hurt, 0);
+            }
+            e.update(elapsedUpdate);
+        }
+        hitTimer -= elapsedUpdate;
+        for(Entity& b: bullets){
+            entityCollideLeft(b);
+            entityCollideRight(b);
+            if(b.collidedRight || b.collidedLeft){
+                b.position.x = -1000;
+                b.position.y = -1000;
+                b.velocity.x = 0;
+                b.velocity.y = 0;
+            }
+            b.update(elapsedUpdate);
+        }
         
+        
+        for(Entity& b: bullets){
+            if(b.velocity.x !=0 || b.velocity.y != 0){
+                for(Enemy& e: enemies){
+                    if(b.collision(e)){
+                        score++;
+                        e.position.x=-1000;
+                        b.position.x = -1000;
+                        b.velocity.x = 0;
+                        b.velocity.y = 0;
+                        Mix_PlayChannel( -1, enemyHit, 0);
+                    }
+                }
+            }
+        }
         viewMatrix = glm::mat4(1.0f);
         viewMatrix = glm::translate(viewMatrix, glm::vec3(-entities[0].position.x,-entities[0].position.y,0.0f));
         texteredShader.SetViewMatrix(viewMatrix);
         
     }
     void Render(){
-        DrawText(texteredShader, fontTexture, "Score: ", -1.73,.95,.05, .01);
         drawMap();
         for(Entity& e: entities){
             e.Draw(texteredShader, elapsed);
         }
-        for(Entity& coin: coins){
-            coin.Draw(texteredShader, elapsed);
+        for(Entity& power: power){
+            power.Draw(texteredShader, elapsed);
         }
         for(Enemy& enemy: enemies){
             enemy.Draw(texteredShader, elapsed);
         }
+        for(Entity& b: bullets){
+            b.Draw(texteredShader, elapsed);
+        }
+        for(Entity& h: healthUp){
+            h.Draw(texteredShader, elapsed);
+        }
+        DrawText(texteredShader, fontTexture, "Health: "+ std::to_string(health), entities[0].position.x-1.7,entities[0].position.y+.9,.05, .01);
+        DrawText(texteredShader, fontTexture, "Score: "+ std::to_string(score), entities[0].position.x-1.7,entities[0].position.y+.8,.05, .01);
 
     }
     void CleanUp(){
@@ -603,27 +802,58 @@ int main(int argc, char *argv[])
     float spriteWidth = 1.0f/(float)sprite_count_x;
     float spriteHeight = 1.0f/(float)sprite_count_y;
     SheetSprite mySprite = SheetSprite(spriteSheetTexture,u, v,spriteWidth, spriteHeight, tileSize);
-    entities.push_back(Entity(0,-.8,-.1,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));
-    
+    entities.push_back(Entity(49*tileSize,4*(-tileSize),0,0,mySprite.width,mySprite.height,0,0,0,mySprite.u,mySprite.v,mySprite.textureID, mySprite.size));
+    renderEntities();
     //Enemy
     //float x, float y, float velocity_x, float velocity_y, float width, float height, float u, float v, int textureID, float size, FlareMap* map, std::vector<int>* Solids
-    enemies.push_back(Enemy(.2,-.9, .05,0,mySprite.width,mySprite.height, u, v, mySprite.textureID, mySprite.size, &map, &solids, &entities[0]));
+    u = (float)(((int)102) % sprite_count_x) / (float) sprite_count_x;
+    v = (float)(((int)102) / sprite_count_x) / (float) sprite_count_y;
+
+//    SheetSprite enemy = SheetSprite(spriteSheetTexture,u, v,spriteWidth, spriteHeight, tileSize);
+//    enemies.push_back(Enemy(2.5,-.8, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(2,-.6, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(1.5,-3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(3,-3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(2,-3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(1.8,-2.3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(3,-2.3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(1.2,-2.3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(2.2,-2.3, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(3.5,-2.7, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(2.8,-2.7, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
+//    enemies.push_back(Enemy(4,-2.7, .07,0,enemy.width,enemy.height, u, v, enemy.textureID, enemy.size, &map, &solids, &entities[0]));
     
     u = (float)(((int)52) % sprite_count_x) / (float) sprite_count_x;
     v = (float)(((int)52) / sprite_count_x) / (float) sprite_count_y;
     SheetSprite coin = SheetSprite(spriteSheetTexture,u, v,spriteWidth , spriteHeight, tileSize);
     
+    u = (float)(((int)21) % sprite_count_x) / (float) sprite_count_x;
+    v = (float)(((int)21) / sprite_count_x) / (float) sprite_count_y;
+    SheetSprite bullet = SheetSprite(spriteSheetTexture,u, v,spriteWidth , spriteHeight, tileSize-.04);
+    
+    for(int i = 0; i < 30; i++){
+        bullets.push_back(Entity(300,300,0,0,bullet.width,bullet.height,0,0,0,bullet.u,bullet.v,bullet.textureID, bullet.size));
+    }
     
 //Entity::Entity(float x, float y, float velocity_x, float velocity_y, int index , int sCountX, int sCountY, float r =1, float g =1, float b =1, fint textureID = -4, float size = -4): position(x,y), velocity(velocity_x, velocity_y){
-    coins.push_back(Entity(.4,-1.25,-.1,0,coin.width,coin.height,0,0,0,coin.u,coin.v,coin.textureID, coin.size));
-    coins.push_back(Entity(1.338,-1.14,-.1,0,coin.width,coin.height,0,0,0,coin.u,coin.v,coin.textureID, coin.size));
     Mix_Music *music;
     
-    music = Mix_LoadMUS("music.mp3");
+    music = Mix_LoadMUS("bg.mp3");
+    hurt = Mix_LoadWAV("hurt.wav");
+    heal = Mix_LoadWAV("heal.wav");
+    //Mix_Chunk *shoot;
+    //Mix_Chunk *jump;
+    //Mix_Chunk *enemyHit;
+   // Mix_Chunk *heal;
+    enemyHit = Mix_LoadWAV("hit.wav");
+    shoot = Mix_LoadWAV("shoot.wav");
+    pickup = Mix_LoadWAV("pickup.wav");
+    jump = Mix_LoadWAV("jump.wav");
+    
     Mix_VolumeMusic(30);
     Mix_PlayMusic(music, -1);
     
-    while (!done) {
+    while (!done && health > 0) {
         float ticks = (float)SDL_GetTicks()/1000.0f;
         elapsed = ticks - lastFrameTicks;
         lastFrameTicks = ticks;

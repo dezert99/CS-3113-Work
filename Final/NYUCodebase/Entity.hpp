@@ -25,6 +25,9 @@ public:
     virtual void update(float elapsed);
     bool collision(Entity &e);
     bool collidedBottom = false;
+    bool collidedTop = false;
+    bool collidedRight = false;
+    bool collidedLeft= false;
     vec2 position;
     float rotation;
     int textureID;

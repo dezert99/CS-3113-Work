@@ -28,6 +28,7 @@ public:
     Enemy(float x, float y, float velocity_x, float velocity_y, float width, float height, float u, float v, int textureID, float size, FlareMap* map, std::vector<int>* solids, Entity* player);
     void checkState();
     void update(float elapsed);
+    bool collision();
     int travelDirection = 1;
     void testingPoints();
     std::vector<bool> testPoints {false, false, false, false};

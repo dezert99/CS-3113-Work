@@ -48,11 +48,14 @@ int health = 3;
 int score = 0;
 float hitTimer = 3.0;
 int level = 1;
+int playerID = 80;
+float playerAnimate = .1;
+float shootTimer = 0;
 
 
 GLuint fontTexture;
 
-enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL};
+enum GameMode { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_GAME_OVER};
 GameMode mode = STATE_MAIN_MENU;
 
 std::vector<Entity> power;
@@ -103,6 +106,17 @@ GLuint LoadTexture(const char *filePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     stbi_image_free(image);
     return retTexture;
+}
+
+void animatePlayer(){
+    if(playerID == 80){
+        playerID = 81;
+    }
+    else{
+        playerID = 80;
+    }
+    entities[0].sprite.u = (float)(((int)playerID) % sprite_count_x) / (float) sprite_count_x;
+    entities[0].sprite.v = (float)(((int)playerID) / sprite_count_x) / (float) sprite_count_y;
 }
 
 void DrawText(ShaderProgram &program, int fontTexture, std::string text, float x, float y, float size, float spacing) {
@@ -570,7 +584,7 @@ class Game{
                     entities[0].velocity.y = jumpPower;
                     jumps--;
                 }
-                if(event.key.keysym.scancode == SDL_SCANCODE_DOWN){
+                if(event.key.keysym.scancode == SDL_SCANCODE_DOWN && shootTimer < 0){
                     bullets[bulletCount].position.x = entities[0].position.x;
                     bullets[bulletCount].position.y = entities[0].position.y+.01;
                     bullets[bulletCount].velocity.y = -.5;
@@ -579,8 +593,9 @@ class Game{
                         bulletCount = 0;
                     }
                     Mix_PlayChannel( -1, shoot, 0);
+                    shootTimer = 1.5;
                 }
-                else if(event.key.keysym.scancode == SDL_SCANCODE_LEFT){
+                else if(event.key.keysym.scancode == SDL_SCANCODE_LEFT  && shootTimer < 0){
                     bullets[bulletCount].position.x = entities[0].position.x;
                     bullets[bulletCount].position.y = entities[0].position.y+.01;
                     bullets[bulletCount].velocity.x = -.5;
@@ -589,8 +604,9 @@ class Game{
                         bulletCount = 0;
                     }
                     Mix_PlayChannel( -1, shoot, 0);
+                    shootTimer = 1.5;
                 }
-                else if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT){
+                else if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT  && shootTimer < 0){
                     bullets[bulletCount].position.x = entities[0].position.x;
                     bullets[bulletCount].position.y = entities[0].position.y+.01;
                     bullets[bulletCount].velocity.x = .5;
@@ -599,8 +615,9 @@ class Game{
                         bulletCount = 0;
                     }
                     Mix_PlayChannel( -1, shoot, 0);
+                    shootTimer = 1.5;
                 }
-                else if(event.key.keysym.scancode == SDL_SCANCODE_UP){
+                else if(event.key.keysym.scancode == SDL_SCANCODE_UP  && shootTimer < 0){
                     bullets[bulletCount].position.x = entities[0].position.x;
                     bullets[bulletCount].position.y = entities[0].position.y+.01;
                     bullets[bulletCount].velocity.y = .5;
@@ -609,6 +626,7 @@ class Game{
                         bulletCount = 0;
                     }
                     Mix_PlayChannel( -1, shoot, 0);
+                    shootTimer = 1.5;
                 }
             }
         }
@@ -621,8 +639,18 @@ class Game{
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         if(keys[SDL_SCANCODE_A]) {
             entities[0].velocity.x = -.3;
+            playerAnimate -= elapsedUpdate;
+            if(playerAnimate < 0){
+                animatePlayer();
+                playerAnimate = .1;
+            }
         } else if(keys[SDL_SCANCODE_D]) {
             entities[0].velocity.x = .3;
+            playerAnimate -= elapsedUpdate;
+            if(playerAnimate < 0){
+                animatePlayer();
+                playerAnimate = .1;
+            }
         }
         else{
             entities[0].velocity.x = 0;
@@ -675,6 +703,9 @@ class Game{
 //            coins[0].position.y = -100;
 //        }
         
+        shootTimer -= elapsedUpdate;
+        
+        std::cout << "Velocity " << entities[0].velocity.x <<" " << entities[0].velocity.y << std::endl;
         entities[0].update(elapsedUpdate);
         for(Enemy& e: enemies){
             if(e.collision() && hitTimer < 0){
@@ -717,6 +748,9 @@ class Game{
         viewMatrix = glm::mat4(1.0f);
         viewMatrix = glm::translate(viewMatrix, glm::vec3(-entities[0].position.x,-entities[0].position.y,0.0f));
         texteredShader.SetViewMatrix(viewMatrix);
+        if(health <= 0){
+             mode = STATE_GAME_OVER;
+        }
         
     }
     void Render(){
@@ -745,8 +779,35 @@ class Game{
     }
 };
 
+class GameOver {
+public:
+    void Render() {
+        DrawText(texteredShader, fontTexture, "Game Over! Score:" + std::to_string(score), entities[0].position.x-.4,entities[0].position.y,0.05, .01);
+    }
+    void Update() {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    void ProcessEvents(){
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+                done = true;
+            }
+            else if (event.type == SDL_KEYDOWN){
+                if(event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+                    mode = STATE_GAME_LEVEL;
+                    lastFrameTicks = (float)SDL_GetTicks()/1000.0f;
+                }
+            }
+        }
+    }
+    void CleanUp(){
+        
+    }
+};
+
 MainMenu menu;
 Game game;
+GameOver gameOver;
 
 
 void Setup(){
@@ -760,6 +821,9 @@ void ProcessEvents(){
         case STATE_GAME_LEVEL:
             game.ProcessEvents();
             break;
+        case STATE_GAME_OVER:
+            gameOver.ProcessEvents();
+            break;
     }
 }
 void Update(float elapsedUpdate = elapsed){
@@ -769,6 +833,9 @@ void Update(float elapsedUpdate = elapsed){
             break;
         case STATE_GAME_LEVEL:
             game.Update(elapsedUpdate);
+            break;
+        case STATE_GAME_OVER:
+            gameOver.Update();
             break;
     }
 }
@@ -780,6 +847,9 @@ void Render(){
         case STATE_GAME_LEVEL:
             game.Render();
             break;
+        case STATE_GAME_OVER:
+            gameOver.Render();
+            break;
     }
 }
 void Cleanup(){
@@ -789,6 +859,9 @@ void Cleanup(){
             break;
         case STATE_GAME_LEVEL:
             game.CleanUp();
+            break;
+        case STATE_GAME_OVER:
+            gameOver.CleanUp();
             break;
     }
 }
@@ -853,7 +926,7 @@ int main(int argc, char *argv[])
     Mix_VolumeMusic(30);
     Mix_PlayMusic(music, -1);
     
-    while (!done && health > 0) {
+    while (!done) {
         float ticks = (float)SDL_GetTicks()/1000.0f;
         elapsed = ticks - lastFrameTicks;
         lastFrameTicks = ticks;

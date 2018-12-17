@@ -133,9 +133,11 @@ bool Enemy::collision(){
 void Enemy::checkState(){
     if(abs(player->position.y-position.y) <= .05&&abs(player->position.x-position.x)<=.3){
         state = 1;
+        velocity.x = .13 * travelDirection;
     }
     else {
         state = 0;
+        velocity.x = .07 * travelDirection;
     }
 }
 
